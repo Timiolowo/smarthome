@@ -27,3 +27,4 @@ config.json
 Thumbs.db
 *.swp
 *.swo
+data/memory_log.jsonl

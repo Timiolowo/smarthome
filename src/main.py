@@ -58,7 +58,7 @@ def run_assistant(simulate_presence: bool = False):
     )
 
     # Start local web configuration server in background
-    run_web_server(host="0.0.0.0", port=5000, background=True)
+    run_web_server(host="0.0.0.0", port=5050, background=True)
 
     listener = VoiceListener()
     listener.calibrate()
@@ -182,7 +182,7 @@ def main():
     args = parser.parse_args()
 
     if args.web_only:
-        run_web_server(host="0.0.0.0", port=5000, background=False)
+        run_web_server(host="0.0.0.0", port=5050, background=False)
         return
 
     run_assistant(simulate_presence=args.simulate_presence)
