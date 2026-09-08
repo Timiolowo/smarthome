@@ -45,6 +45,7 @@ def play_alarm_sound(repeats: int = 2) -> None:
 class AgentTools:
     def __init__(self):
         self.active_timers: List[threading.Timer] = []
+        self.timer_records: List[Dict[str, Any]] = []
 
     def update_preferred_name(self, new_name: str) -> str:
         """Updates the user's name across memory.json and config.json."""
@@ -115,8 +116,23 @@ class AgentTools:
             hrs = round(seconds / 3600, 1)
             display_time = f"{hrs} hours"
 
+        end_timestamp = time.time() + seconds
+        record = {
+            "id": f"timer_{int(end_timestamp)}_{len(self.timer_records)}",
+            "label": label,
+            "display_time": display_time,
+            "total_seconds": seconds,
+            "end_timestamp": end_timestamp,
+            "created_at": datetime.now().isoformat(),
+        }
+        self.timer_records.append(record)
+
         def _timer_callback():
             print(f"\n⏰ [ALARM TRIGGERED]: {label.capitalize()} for {display_time} is up!")
+            try:
+                self.timer_records = [r for r in self.timer_records if r.get("id") != record["id"]]
+            except Exception:
+                pass
             play_alarm_sound(repeats=2)
             time.sleep(0.3)
             alert_msg = f"Your {label} for {display_time} is up."
@@ -124,6 +140,7 @@ class AgentTools:
 
         t = threading.Timer(seconds, _timer_callback)
         t.daemon = True
+        record["timer_obj"] = t
         t.start()
         self.active_timers.append(t)
 
@@ -155,15 +172,31 @@ class AgentTools:
 
             diff_seconds = (target_dt - now).total_seconds()
             display_target = target_dt.strftime("%I:%M %p").lstrip("0")
+            end_timestamp = time.time() + diff_seconds
+
+            clock_record = {
+                "id": f"clock_{int(end_timestamp)}_{len(self.timer_records)}",
+                "label": label,
+                "display_time": display_target,
+                "total_seconds": diff_seconds,
+                "end_timestamp": end_timestamp,
+                "created_at": datetime.now().isoformat(),
+            }
+            self.timer_records.append(clock_record)
 
             def _clock_callback():
                 print(f"\n⏰ [CLOCK ALARM TRIGGERED]: {label.capitalize()} for {display_target}!")
+                try:
+                    self.timer_records = [r for r in self.timer_records if r.get("id") != clock_record["id"]]
+                except Exception:
+                    pass
                 play_alarm_sound(repeats=2)
                 time.sleep(0.3)
                 speak(f"It is {display_target}. Your {label} is ringing.", interruptible=False)
 
             t = threading.Timer(diff_seconds, _clock_callback)
             t.daemon = True
+            clock_record["timer_obj"] = t
             t.start()
             self.active_timers.append(t)
 
@@ -171,6 +204,64 @@ class AgentTools:
             return f"Alarm set for {display_target}."
         except Exception as e:
             return f"Couldn't set alarm for {target_time_str}."
+
+    def get_active_timers(self) -> List[Dict[str, Any]]:
+        """Returns list of active timers with calculated remaining seconds."""
+        now_ts = time.time()
+        active = []
+        valid_records = []
+        for r in self.timer_records:
+            rem = max(0.0, r["end_timestamp"] - now_ts)
+            if rem > 0:
+                valid_records.append(r)
+                target_dt = datetime.fromtimestamp(r["end_timestamp"])
+                active.append({
+                    "id": r.get("id"),
+                    "label": r.get("label", "Timer"),
+                    "display_time": r.get("display_time", ""),
+                    "target_display": target_dt.strftime("%I:%M %p"),
+                    "total_seconds": r.get("total_seconds", 0),
+                    "remaining_seconds": round(rem, 1),
+                    "progress_pct": max(0, min(100, round((1 - (rem / (r.get("total_seconds") or 1))) * 100))),
+                })
+        self.timer_records = valid_records
+        return active
+
+    def cancel_timer(self, timer_id: str) -> bool:
+        """Cancels an active timer by its unique ID."""
+        for r in list(self.timer_records):
+            if r.get("id") == timer_id:
+                t = r.get("timer_obj")
+                if t:
+                    try:
+                        t.cancel()
+                    except Exception:
+                        pass
+                if t in self.active_timers:
+                    try:
+                        self.active_timers.remove(t)
+                    except Exception:
+                        pass
+                self.timer_records.remove(r)
+                self._log_event("timer", f"Canceled timer {timer_id}")
+                return True
+        return False
+
+    def cancel_all_timers(self) -> int:
+        """Cancels all currently active timers."""
+        count = 0
+        for r in list(self.timer_records):
+            t = r.get("timer_obj")
+            if t:
+                try:
+                    t.cancel()
+                except Exception:
+                    pass
+            count += 1
+        self.active_timers.clear()
+        self.timer_records.clear()
+        self._log_event("timer", f"Canceled all {count} timers")
+        return count
 
     def _log_event(self, category: str, note: str) -> None:
         entry = {

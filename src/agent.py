@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Optional, Tuple
 
 from src.brain import brain
+from src.memory import memory
 from src.tools import tools
 
 CHAT_HISTORY_FILE = os.path.join(
@@ -126,6 +127,66 @@ class HomeAgent:
             response = tools.set_clock_alarm(time_str, label="alarm")
             self._save_turn("assistant", response)
             return response
+
+        # -------------------------------------------------------------
+        # TOOL 4: Query Active Timers
+        # e.g. "How much time is left?", "Any timers running?", "Check timers"
+        # -------------------------------------------------------------
+        if re.search(r"\b(how much time is left|active timers?|any timers?|check timers?|status of (?:the )?timer|what timer|timers? running)\b", cleaned):
+            active = tools.get_active_timers()
+            if not active:
+                reply = "You don't have any active timers running right now."
+            elif len(active) == 1:
+                t = active[0]
+                rem_mins = int(t['remaining_seconds'] // 60)
+                rem_secs = int(t['remaining_seconds'] % 60)
+                time_str = f"{rem_mins}m {rem_secs}s" if rem_mins > 0 else f"{rem_secs}s"
+                reply = f"You have 1 active {t['label']} ({t['display_time']}) with {time_str} remaining."
+            else:
+                details = []
+                for t in active:
+                    rem_mins = int(t['remaining_seconds'] // 60)
+                    rem_secs = int(t['remaining_seconds'] % 60)
+                    time_str = f"{rem_mins}m {rem_secs}s" if rem_mins > 0 else f"{rem_secs}s"
+                    details.append(f"{t['label']} ({t['display_time']}, {time_str} left)")
+                reply = f"You have {len(active)} active timers: {', '.join(details)}."
+            self._save_turn("assistant", reply)
+            return reply
+
+        # -------------------------------------------------------------
+        # TOOL 5: Cancel Timers / Alarms
+        # e.g. "Cancel timer", "Stop the alarm", "Clear timers"
+        # -------------------------------------------------------------
+        if re.search(r"\b(cancel (?:the |all )?timers?|stop (?:the |all )?timers?|clear (?:the |all )?timers?|cancel (?:the |all )?alarms?|stop (?:the |all )?alarms?)\b", cleaned):
+            count = tools.cancel_all_timers()
+            reply = "I've canceled your active timers." if count > 0 else "There are no active timers to cancel."
+            self._save_turn("assistant", reply)
+            return reply
+
+        # -------------------------------------------------------------
+        # TOOL 6: "What do you know about me?"
+        # -------------------------------------------------------------
+        if re.search(r"\b(what do you know about me|what do you remember about me|who am i|tell me about me|what shows do i like|what do i like to watch)\b", cleaned):
+            mem_data = memory.load_memory()
+            name = mem_data.get("profile", {}).get("preferred_name", "Timilehin")
+            series = mem_data.get("preferences", {}).get("entertainment", {}).get("favorite_series", [])
+            facts = mem_data.get("learned_facts", [])
+            
+            summary = f"You are {name}. You love high-concept sci-fi and fantasy shows like {', '.join(series)}."
+            if facts:
+                summary += f" I also remember: {'; '.join(facts[-3:])}."
+            self._save_turn("assistant", summary)
+            return summary
+
+        # -------------------------------------------------------------
+        # TOOL 7: "Who are you?" / About the AI
+        # -------------------------------------------------------------
+        if re.search(r"\b(who are you|what are you|tell me about yourself|what is your name)\b", cleaned):
+            asst_data = memory.load_assistant()
+            name = asst_data.get("name", "Nova")
+            reply = f"I am {name}, your private local smart home assistant. I run 100% offline on your machine with a local Llama 3.2 3B brain, keeping all your data completely private."
+            self._save_turn("assistant", reply)
+            return reply
 
         # -------------------------------------------------------------
         # GENERAL CONVERSATION (Passed to LLM Brain)

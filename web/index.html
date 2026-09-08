@@ -841,11 +841,871 @@
       opacity: 1;
       transform: translateY(0);
     }
+
+    /* ==========================================================================
+       LIVE DISPLAY & KIOSK MODE (beautifului.dev style)
+       ========================================================================== */
+    .live-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-card);
+      margin-bottom: 20px;
+      gap: 12px;
+      box-shadow: var(--shadow-card);
+    }
+    .live-topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .live-beacon-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 600;
+      background: var(--green-tint);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+    .live-beacon-pill.away {
+      background: rgba(245, 158, 11, 0.12);
+      color: #f59e0b;
+      border-color: rgba(245, 158, 11, 0.25);
+    }
+    .radar-beacon {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: currentColor;
+      position: relative;
+    }
+    .radar-beacon::after {
+      content: "";
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      opacity: 0.7;
+      animation: radarRing 1.8s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    @keyframes radarRing {
+      0% { transform: scale(0.6); opacity: 1; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    .kiosk-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: var(--radius-control);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--field);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-btn);
+      transition: all 150ms ease;
+    }
+    .kiosk-btn:hover {
+      background: var(--hover);
+      border-color: var(--line-strong);
+    }
+    .kiosk-exit-btn {
+      display: none;
+      position: fixed;
+      top: 18px;
+      right: 24px;
+      z-index: 10000;
+      background: rgba(18, 18, 21, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--line-strong);
+      color: var(--ink);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .kiosk-exit-btn:hover {
+      background: var(--surface);
+    }
+
+    /* KIOSK FULLSCREEN STYLES */
+    body.kiosk-mode aside.sidebar {
+      display: none !important;
+    }
+    body.kiosk-mode .header-section {
+      display: none !important;
+    }
+    body.kiosk-mode .app-container {
+      grid-template-columns: 1fr !important;
+    }
+    body.kiosk-mode .content {
+      padding: 18px 24px !important;
+      max-width: 100% !important;
+      height: 100vh !important;
+      overflow-y: auto !important;
+    }
+    body.kiosk-mode .kiosk-exit-btn {
+      display: inline-flex !important;
+    }
+
+    /* 3-COLUMN LIVE GRID */
+    .live-display-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr 1.05fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 1200px) {
+      .live-display-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 768px) {
+      .live-display-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* COLUMN 1: AMBIENT GLANCE & TIMERS */
+    .kiosk-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-card);
+      padding: 22px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+    }
+    .kiosk-clock-box {
+      text-align: left;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px dashed var(--line);
+    }
+    .kiosk-time {
+      font-size: 58px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      letter-spacing: -2px;
+      line-height: 1.05;
+      font-feature-settings: "tnum";
+      color: var(--ink);
+    }
+    .kiosk-time .time-ampm {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--ink-3);
+      margin-left: 6px;
+      letter-spacing: normal;
+    }
+    .kiosk-date {
+      font-size: 14px;
+      color: var(--ink-2);
+      margin-top: 8px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .kiosk-greeting-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 600;
+      background: var(--field);
+      color: var(--ink-2);
+      border: 1px solid var(--line);
+    }
+
+    /* Presence Hero Box */
+    .presence-detail-card {
+      background: var(--field);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-control);
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .presence-detail-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-3);
+      margin-bottom: 6px;
+    }
+    .presence-detail-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .presence-user-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .presence-detail-meta {
+      font-size: 12px;
+      color: var(--ink-3);
+      margin-top: 4px;
+      font-family: var(--font-mono);
+    }
+
+    /* Active Timers List */
+    .live-timers-section {
+      margin-top: 14px;
+    }
+    .live-section-subhead {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-3);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .timer-ring-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--field);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-control);
+      margin-bottom: 8px;
+      transition: border-color 150ms ease;
+    }
+    .timer-ring-card:hover {
+      border-color: var(--line-strong);
+    }
+    .timer-ring-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .timer-ring-meta {
+      font-size: 11px;
+      color: var(--ink-3);
+    }
+    .timer-countdown-val {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+    .timer-empty-state {
+      padding: 18px 12px;
+      text-align: center;
+      color: var(--ink-3);
+      font-size: 12px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius-control);
+    }
+
+    /* COLUMN 2: AI VOICE ORB & CONVERSATION HUD */
+    .voice-hud-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-card);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .voice-orb-stage {
+      width: 100%;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    /* Multi-layered Glowing AI Orb */
+    .ai-orb-wrapper {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ai-orb-glow {
+      position: absolute;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.45) 0%, rgba(99, 102, 241, 0.2) 50%, transparent 70%);
+      filter: blur(24px);
+      transition: all 400ms ease;
+    }
+    .ai-orb-core {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #93c5fd, #3b82f6 50%, #1d4ed8 90%);
+      box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.6), 0 0 28px rgba(59, 130, 246, 0.4);
+      animation: orbBreathe 3.5s infinite ease-in-out;
+      transition: all 500ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .ai-orb-ripple {
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 2px solid rgba(59, 130, 246, 0.4);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Orb States */
+    @keyframes orbBreathe {
+      0%, 100% { transform: scale(0.96); }
+      50% { transform: scale(1.04); }
+    }
+
+    /* 1. Listening State (Amber/Gold Radiant Pulse) */
+    .ai-orb-wrapper.listening .ai-orb-core {
+      background: radial-gradient(circle at 35% 35%, #fde68a, #f59e0b 50%, #d97706 90%);
+      box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(245, 158, 11, 0.6);
+      animation: orbListeningPulse 1s infinite alternate ease-in-out;
+    }
+    .ai-orb-wrapper.listening .ai-orb-glow {
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.6) 0%, rgba(217, 119, 6, 0.3) 50%, transparent 70%);
+      transform: scale(1.2);
+    }
+    .ai-orb-wrapper.listening .ai-orb-ripple {
+      border-color: rgba(245, 158, 11, 0.6);
+      animation: rippleExpand 1.4s infinite cubic-bezier(0.1, 0.8, 0.3, 1);
+    }
+    @keyframes orbListeningPulse {
+      0% { transform: scale(0.98); }
+      100% { transform: scale(1.12); }
+    }
+    @keyframes rippleExpand {
+      0% { transform: scale(1); opacity: 0.9; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    /* 2. Thinking State (Violet/Purple Swirl) */
+    .ai-orb-wrapper.thinking .ai-orb-core {
+      background: radial-gradient(circle at 35% 35%, #e9d5ff, #a855f7 50%, #7e22ce 90%);
+      box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.8), 0 0 35px rgba(168, 85, 247, 0.55);
+      animation: orbThinkingSpin 2s infinite linear;
+    }
+    .ai-orb-wrapper.thinking .ai-orb-glow {
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.6) 0%, rgba(126, 34, 206, 0.25) 50%, transparent 70%);
+    }
+    @keyframes orbThinkingSpin {
+      0% { transform: rotate(0deg) scale(1.02); }
+      50% { transform: rotate(180deg) scale(0.98); }
+      100% { transform: rotate(360deg) scale(1.02); }
+    }
+
+    /* 3. Speaking State (Emerald / Teal Harmonic Wave) */
+    .ai-orb-wrapper.speaking .ai-orb-core {
+      background: radial-gradient(circle at 35% 35%, #a7f3d0, #10b981 50%, #047857 90%);
+      box-shadow: inset 0 0 22px rgba(255, 255, 255, 0.8), 0 0 45px rgba(16, 185, 129, 0.6);
+      animation: orbSpeakingBounce 0.7s infinite alternate cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .ai-orb-wrapper.speaking .ai-orb-glow {
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.6) 0%, rgba(5, 150, 105, 0.3) 50%, transparent 70%);
+      transform: scale(1.25);
+    }
+    @keyframes orbSpeakingBounce {
+      0% { transform: scale(1.0); }
+      100% { transform: scale(1.15); }
+    }
+
+    /* 14-Bar Audio Equalizer */
+    .live-equalizer-bar-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 28px;
+      margin-top: 10px;
+    }
+    .eq-bar {
+      width: 3.5px;
+      height: 6px;
+      background: var(--ink-3);
+      border-radius: 999px;
+      transition: height 120ms ease, background-color 200ms ease;
+    }
+    .ai-orb-wrapper.listening ~ .live-equalizer-bar-group .eq-bar {
+      background: #f59e0b;
+      animation: eqJump 0.6s infinite ease-in-out alternate;
+    }
+    .ai-orb-wrapper.speaking ~ .live-equalizer-bar-group .eq-bar {
+      background: #10b981;
+      animation: eqJump 0.4s infinite ease-in-out alternate;
+    }
+    .eq-bar:nth-child(2) { animation-delay: 0.1s !important; }
+    .eq-bar:nth-child(3) { animation-delay: 0.25s !important; }
+    .eq-bar:nth-child(4) { animation-delay: 0.15s !important; }
+    .eq-bar:nth-child(5) { animation-delay: 0.3s !important; }
+    .eq-bar:nth-child(6) { animation-delay: 0.05s !important; }
+    .eq-bar:nth-child(7) { animation-delay: 0.2s !important; }
+    .eq-bar:nth-child(8) { animation-delay: 0.35s !important; }
+    .eq-bar:nth-child(9) { animation-delay: 0.1s !important; }
+    .eq-bar:nth-child(10) { animation-delay: 0.28s !important; }
+    @keyframes eqJump {
+      0% { height: 6px; }
+      100% { height: 26px; }
+    }
+
+    /* Orb Status Label */
+    .orb-status-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Subtitles Card */
+    .live-subtitle-box {
+      width: 100%;
+      background: var(--field);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-control);
+      padding: 16px;
+      margin-top: 18px;
+    }
+    .subtitle-row {
+      margin-bottom: 12px;
+    }
+    .subtitle-row:last-child {
+      margin-bottom: 0;
+    }
+    .subtitle-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-3);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .subtitle-content {
+      font-size: 14.5px;
+      line-height: 1.45;
+      color: var(--ink);
+      font-weight: 500;
+      min-height: 22px;
+    }
+    .subtitle-content.assistant-text {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Push-to-Talk Mic Controller */
+    .live-mic-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+      width: 100%;
+    }
+    .btn-mic-talk {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: var(--radius-control);
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+      transition: all 150ms ease;
+    }
+    .btn-mic-talk:hover {
+      background: var(--accent-ink);
+      transform: translateY(-1px);
+    }
+    .btn-mic-talk.active-listening {
+      background: #ef4444;
+      animation: micPulsing 1s infinite alternate ease-in-out;
+    }
+    @keyframes micPulsing {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+      100% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+    }
+
+    /* Quick Voice Spoken Chips */
+    .voice-quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+      width: 100%;
+    }
+    .voice-chip {
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      background: var(--field);
+      color: var(--ink-2);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      transition: all 120ms ease;
+    }
+    .voice-chip:hover {
+      background: var(--hover);
+      color: var(--ink);
+      border-color: var(--line-strong);
+    }
+
+    /* COLUMN 3: REAL-TIME TELEMETRY STREAM */
+    .telemetry-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-card);
+      padding: 22px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .telemetry-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+    .telemetry-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .telemetry-ping-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--field);
+      color: var(--ink-2);
+      border: 1px solid var(--line);
+    }
+    .telemetry-ping-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+
+    /* Filter Pills */
+    .telemetry-filter-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .filter-chip {
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      background: var(--field);
+      color: var(--ink-3);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 120ms ease;
+    }
+    .filter-chip.active {
+      background: var(--surface);
+      color: var(--ink);
+      border-color: var(--line-strong);
+      box-shadow: var(--shadow-btn);
+    }
+
+    /* Terminal Console Stream */
+    .telemetry-feed {
+      flex: 1;
+      height: 420px;
+      max-height: 440px;
+      overflow-y: auto;
+      background: var(--page);
+      border: 1px dashed var(--line);
+      border-radius: var(--radius-control);
+      padding: 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .telemetry-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.02);
+      line-height: 1.4;
+      animation: fadeIn 150ms ease;
+    }
+    .telemetry-row:hover {
+      background: var(--hover);
+    }
+    .telemetry-time {
+      color: var(--ink-3);
+      flex-shrink: 0;
+      font-size: 10.5px;
+    }
+    .telemetry-tag {
+      font-size: 9.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .telemetry-tag.presence {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+    }
+    .telemetry-tag.voice {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+    .telemetry-tag.agent {
+      background: rgba(168, 85, 247, 0.15);
+      color: #a855f7;
+    }
+    .telemetry-tag.timer, .telemetry-tag.alarm {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+    .telemetry-tag.entertainment {
+      background: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+    }
+    .telemetry-tag.system {
+      background: var(--hover);
+      color: var(--ink-2);
+    }
+    .telemetry-msg {
+      color: var(--ink);
+      word-break: break-word;
+    }
+    .telemetry-footer-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--ink-3);
+    }
+    .telemetry-footer-controls button {
+      background: transparent;
+      border: none;
+      color: var(--ink-2);
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: underline;
+    /* Active Timers Component */
+    .timer-item-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px 16px;
+      background: var(--inset);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-card);
+      margin-bottom: 12px;
+      transition: all 150ms ease;
+    }
+    .timer-item-card:hover {
+      border-color: var(--line-strong);
+    }
+    .timer-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .timer-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .timer-pulsing-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulseAlert 1.5s infinite;
+    }
+    .timer-countdown-pill {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+      padding: 4px 10px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .timer-progress-wrap {
+      width: 100%;
+      height: 6px;
+      background: var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .timer-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #f59e0b);
+      border-radius: 999px;
+      transition: width 300ms linear;
+    }
+    .empty-state-box {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--ink-3);
+      font-size: 13px;
+      background: var(--inset);
+      border: 1px dashed var(--line);
+      border-radius: var(--radius-card);
+    }
+
+    /* Knowledge Profile & AI Identity Cards */
+    .info-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-card);
+      padding: 16px;
+      box-shadow: var(--shadow-card);
+    }
+    .info-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 12.5px;
+      border-bottom: 1px dashed var(--line-hairline);
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      color: var(--ink-3);
+    }
+    .info-val {
+      font-weight: 500;
+      color: var(--ink);
+      text-align: right;
+    }
+    .tag-chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 500;
+      background: var(--field);
+      border: 1px solid var(--line);
+      color: var(--ink-2);
+    }
+    .rule-callout {
+      display: flex;
+      gap: 10px;
+      padding: 12px;
+      border-radius: var(--radius-control);
+      background: var(--inset);
+      border-left: 3px solid var(--accent);
+      margin-bottom: 10px;
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: var(--ink);
+    }
+    .rule-callout.shield {
+      border-left-color: #10b981;
+    }
+    .rule-callout.alert {
+      border-left-color: #ef4444;
+    }
   </style>
 </head>
 <body>
+<button class="kiosk-exit-btn" id="kiosk-exit-btn" onclick="toggleKioskMode(false)">✕ Exit Kiosk</button>
 
-<div class="app-container">
+<div class="app-container" id="app-container">
   <!-- Sidebar Navigation -->
   <aside class="sidebar">
     <div class="brand-row">
@@ -870,23 +1730,37 @@
       </div>
     </div>
 
+    <div class="nav-label">Live Monitor</div>
+    <ul class="nav-list" style="margin-bottom: 20px;">
+      <li><a class="nav-item" id="nav-item-livedisplay" onclick="showTab('tab-livedisplay', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>
+        Live Display
+        <span style="margin-left:auto; width:7px; height:7px; border-radius:50%; background:var(--green); display:inline-block; box-shadow:0 0 6px rgba(16,185,129,0.7);"></span>
+      </a></li>
+    </ul>
+
     <div class="nav-label">Dashboard</div>
     <ul class="nav-list">
       <li><a class="nav-item active" onclick="showTab('tab-overview', this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         Overview
       </a></li>
-      <li><a class="nav-item" onclick="showTab('tab-config', this)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        Configuration
+      <li><a class="nav-item" onclick="showTab('tab-user-profile', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        What AI Knows (You)
       </a></li>
-      <li><a class="nav-item" onclick="showTab('tab-memory', this)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        Memory & Facts
+      <li><a class="nav-item" onclick="showTab('tab-about-ai', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
+        About the AI
       </a></li>
       <li><a class="nav-item" onclick="showTab('tab-alarms', this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2M5 3L2 6M22 6l-3-3"></path></svg>
         Alarms & Timers
+        <span class="badge badge-green" id="sidebar-timer-badge" style="margin-left:auto; display:none;">0</span>
+      </a></li>
+      <li><a class="nav-item" onclick="showTab('tab-config', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Configuration
       </a></li>
       <li><a class="nav-item" onclick="showTab('tab-chat', this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
@@ -905,6 +1779,182 @@
     <div class="header-section">
       <h1 id="page-heading">Assistant Overview</h1>
       <p id="page-subheading">Status, models, and real-time smart home controls.</p>
+    </div>
+
+    <!-- 0. LIVE DISPLAY & KIOSK TAB -->
+    <div id="tab-livedisplay" class="section-card">
+      <!-- Live Topbar (Controls & Presence Beacon) -->
+      <div class="live-topbar">
+        <div class="live-topbar-left">
+          <div id="live-beacon-indicator" class="live-beacon-pill">
+            <span class="radar-beacon"></span>
+            <span id="live-beacon-status">ONLINE • Timilehin is Home</span>
+          </div>
+          <span style="font-size:12px; color:var(--ink-3); font-family:var(--font-mono);" id="live-presence-ip">Target IP: 192.168.1.150</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button class="kiosk-btn" onclick="toggleKioskMode(true)" title="Expand into ambient fullscreen kiosk display">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+            Fullscreen Kiosk Mode
+          </button>
+        </div>
+      </div>
+
+      <!-- 3-Column Responsive Grid -->
+      <div class="live-display-grid">
+        <!-- COLUMN 1: Ambient Glance, Clock & Timers -->
+        <div class="kiosk-card">
+          <div class="kiosk-clock-box">
+            <div class="kiosk-time" id="kiosk-clock">00:00:00<span class="time-ampm" id="kiosk-ampm">--</span></div>
+            <div class="kiosk-date" id="kiosk-date">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <span>Loading date...</span>
+            </div>
+            <div class="kiosk-greeting-badge" id="kiosk-greeting">
+              <span>👋</span>
+              <span id="kiosk-greeting-text">Welcome home, Timilehin</span>
+            </div>
+          </div>
+
+          <!-- Presence Hero Box -->
+          <div class="presence-detail-card">
+            <div class="presence-detail-title">Household Presence</div>
+            <div class="presence-detail-main">
+              <div>
+                <div class="presence-user-name" id="kiosk-user-presence">Timilehin</div>
+                <div class="presence-detail-meta" id="kiosk-presence-meta">Wi-Fi Connected • Active</div>
+              </div>
+              <span id="kiosk-presence-badge" class="badge badge-green">Home</span>
+            </div>
+          </div>
+
+          <!-- Active Timers Section -->
+          <div class="live-timers-section">
+            <div class="live-section-subhead">
+              <span>Active Timers</span>
+              <span id="live-timers-count" class="badge badge-gray">0 Running</span>
+            </div>
+            <div id="live-timers-list">
+              <div class="timer-empty-state">No active timers running</div>
+            </div>
+          </div>
+
+          <!-- Quick Household Snapshot -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:16px;">
+            <div style="background:var(--field); border:1px solid var(--line); border-radius:var(--radius-control); padding:10px;">
+              <div style="font-size:10.5px; text-transform:uppercase; color:var(--ink-3); margin-bottom:2px;">Power Grid</div>
+              <div style="font-size:13px; font-weight:600; color:var(--ink);" id="kiosk-power-val">Grid Active (85%)</div>
+            </div>
+            <div style="background:var(--field); border:1px solid var(--line); border-radius:var(--radius-control); padding:10px;">
+              <div style="font-size:10.5px; text-transform:uppercase; color:var(--ink-3); margin-bottom:2px;">Assistant Brain</div>
+              <div style="font-size:13px; font-weight:600; color:var(--ink);" id="kiosk-brain-val">Llama 3.2 3B</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMN 2: AI Voice Orb & Conversation HUD -->
+        <div class="voice-hud-card">
+          <div class="live-section-subhead" style="width:100%; margin-bottom:4px;">
+            <span>Voice Assistant HUD</span>
+            <span id="hud-mode-pill" class="badge badge-blue">Offline STT / TTS</span>
+          </div>
+
+          <!-- Animated Multi-layer Voice Orb -->
+          <div class="voice-orb-stage">
+            <div class="ai-orb-wrapper" id="live-ai-orb">
+              <div class="ai-orb-glow"></div>
+              <div class="ai-orb-ripple"></div>
+              <div class="ai-orb-core"></div>
+            </div>
+          </div>
+
+          <!-- 12-Bar Audio Equalizer -->
+          <div class="live-equalizer-bar-group" id="live-equalizer">
+            <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+            <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+            <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+          </div>
+
+          <!-- Orb Status text -->
+          <div class="orb-status-text" id="live-orb-status-label">
+            <span class="model-dot-live"></span>
+            <span id="live-orb-state-text">Standby • Say "Hey" or "Hello"</span>
+          </div>
+
+          <!-- Subtitle Dialogue Card -->
+          <div class="live-subtitle-box">
+            <div class="subtitle-row">
+              <div class="subtitle-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"></path></svg>
+                Last Heard (Speech Input)
+              </div>
+              <div class="subtitle-content" id="live-heard-text">"Waiting for voice..."</div>
+            </div>
+            <div class="subtitle-row" style="border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 10px;">
+              <div class="subtitle-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                Assistant Spoken Response
+              </div>
+              <div class="subtitle-content assistant-text" id="live-reply-text">"Standing by at home, Timilehin."</div>
+            </div>
+          </div>
+
+          <!-- Browser Push-to-Talk Mic Controls -->
+          <div class="live-mic-controls">
+            <button type="button" id="btn-live-mic" class="btn-mic-talk" onclick="toggleWebSpeechMic()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"></path></svg>
+              <span id="btn-live-mic-text">Push to Talk (Browser Mic)</span>
+            </button>
+            <button class="btn btn-secondary" onclick="testChime()" title="Test audio alarm chime" style="padding:12px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2M5 3L2 6M22 6l-3-3"></path></svg>
+            </button>
+          </div>
+
+          <!-- Quick Spoken Trigger Chips -->
+          <div class="voice-quick-chips">
+            <div class="voice-chip" onclick="triggerQuickSpoken('What is the power status?')">⚡ Power status</div>
+            <div class="voice-chip" onclick="triggerQuickSpoken('Set a timer for 10 minutes')">⏰ 10m timer</div>
+            <div class="voice-chip" onclick="triggerQuickSpoken('Who is home right now?')">📍 Who is home?</div>
+            <div class="voice-chip" onclick="triggerQuickSpoken('What show was I watching?')">🎬 Last watched</div>
+          </div>
+        </div>
+
+        <!-- COLUMN 3: Real-Time Telemetry & Event Stream -->
+        <div class="telemetry-card">
+          <div class="telemetry-header-row">
+            <div class="telemetry-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+              Live Telemetry Stream
+            </div>
+            <div class="telemetry-ping-badge" id="telemetry-ping-badge">
+              <span class="telemetry-ping-dot"></span>
+              <span id="telemetry-latency">-- ms</span>
+            </div>
+          </div>
+
+          <!-- Filter Pills -->
+          <div class="telemetry-filter-bar">
+            <button class="filter-chip active" onclick="setTelemetryFilter('all', this)">All Events</button>
+            <button class="filter-chip" onclick="setTelemetryFilter('presence', this)">Presence</button>
+            <button class="filter-chip" onclick="setTelemetryFilter('voice', this)">Voice</button>
+            <button class="filter-chip" onclick="setTelemetryFilter('agent', this)">Agent</button>
+            <button class="filter-chip" onclick="setTelemetryFilter('timer', this)">Timers</button>
+          </div>
+
+          <!-- Scrollable Log Stream Terminal -->
+          <div class="telemetry-feed" id="telemetry-feed">
+            <div style="color:var(--ink-3); text-align:center; padding:20px 0;">Connecting to telemetry stream...</div>
+          </div>
+
+          <div class="telemetry-footer-controls">
+            <span id="telemetry-count-label">0 events recorded</span>
+            <div style="display:flex; gap:10px;">
+              <button onclick="toggleTelemetryAutoScroll()" id="btn-autoscroll">Auto-scroll: ON</button>
+              <button onclick="pollLiveEvents(true)">Refresh</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 1. OVERVIEW TAB -->
@@ -999,52 +2049,279 @@
       </form>
     </div>
 
-    <!-- 3. MEMORY & FACTS TAB -->
-    <div id="tab-memory" class="section-card">
+    <!-- 3. WHAT AI KNOWS ABOUT YOU (USER KNOWLEDGE PROFILE) -->
+    <div id="tab-user-profile" class="section-card">
       <div class="card-header">
         <div>
-          <div class="card-title">Learned Facts & Memories</div>
-          <div class="card-subtitle">Facts remembered across sessions in data/memory.json</div>
+          <div class="card-title">What Nova Knows About You</div>
+          <div class="card-subtitle">Personal habits, entertainment tastes, power rules, and long-term memory in data/memory.json</div>
         </div>
+        <button class="btn btn-secondary" onclick="loadStatus()">Reload Profile</button>
       </div>
 
-      <div style="display:flex; gap:10px; margin-bottom: 20px;">
-        <input type="text" id="new-fact-input" class="form-input" placeholder="Enter a fact to remember (e.g. 'I do not have money for chicken soup')..."/>
-        <button class="btn btn-primary" style="white-space:nowrap;" onclick="addFact()">Add Fact</button>
-      </div>
+      <!-- Grid of Profile Cards -->
+      <div class="info-grid-2">
+        <!-- Personal Identity Card -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Personal Profile & Identity
+          </div>
+          <div class="info-row">
+            <span class="info-label">Preferred Name</span>
+            <span class="info-val" id="prof-user-name">Timilehin</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Household Role</span>
+            <span class="info-val" id="prof-user-role">Owner / Primary Resident</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Location</span>
+            <span class="info-val" id="prof-location">Nigeria</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Timezone</span>
+            <span class="info-val" id="prof-timezone">Africa/Lagos</span>
+          </div>
+        </div>
 
-      <div class="table-container">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th style="width: 50px;">#</th>
-              <th>Learned Fact</th>
-              <th style="width: 80px; text-align:right;">Action</th>
-            </tr>
-          </thead>
-          <tbody id="memory-table-body">
-            <tr><td colspan="3">Loading facts...</td></tr>
-          </tbody>
-        </table>
+        <!-- Entertainment Card -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+            Entertainment & Media Tastes
+          </div>
+          <div style="font-size:12px; color:var(--ink-3); margin-bottom:4px;">Favorite Series</div>
+          <div class="tag-chip-group" id="prof-series-chips">
+            <span class="tag-chip">🎬 Merlin</span>
+            <span class="tag-chip">🎬 Silo</span>
+            <span class="tag-chip">🎬 The 100</span>
+            <span class="tag-chip">🎬 Alchemy of Souls</span>
+          </div>
+          <div style="font-size:12px; color:var(--ink-3); margin-top:10px; margin-bottom:4px;">Favorite Genres</div>
+          <div class="tag-chip-group" id="prof-genre-chips">
+            <span class="tag-chip">Sci-Fi</span>
+            <span class="tag-chip">Dystopian</span>
+            <span class="tag-chip">Fantasy & Magic</span>
+            <span class="tag-chip">Mystery</span>
+          </div>
+          <div class="info-row" style="margin-top:10px;">
+            <span class="info-label">Viewing Atmosphere</span>
+            <span class="info-val">Warm / Dimmed Ambient</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Subtitles / Soundbar</span>
+            <span class="info-val">Enabled / Night Mode</span>
+          </div>
+        </div>
+
+        <!-- Climate & Comfort Card -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>
+            Climate & Comfort Preferences
+          </div>
+          <div class="info-row">
+            <span class="info-label">AC Preferred Day Temp</span>
+            <span class="info-val">22°C</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">AC Sleep Temp</span>
+            <span class="info-val">23°C</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Fan Speed</span>
+            <span class="info-val">Medium-High</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Chilling Habit</span>
+            <span class="info-val">Prefers a cool room winding down</span>
+          </div>
+        </div>
+
+        <!-- Household Power & NEPA Habits -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            Power & NEPA Preservation Habits
+          </div>
+          <div class="rule-callout shield">
+            <div>
+              <strong>🔋 Inverter Priority:</strong> Preserve battery when NEPA is out. Warns before running heavy loads (AC) on inverter.
+            </div>
+          </div>
+          <div class="rule-callout shield">
+            <div>
+              <strong>⚡ Proactive Alert:</strong> Proactively notifies when grid (NEPA) power restores so devices can charge.
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Routines Card -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Daily Automation Routines
+          </div>
+          <div class="info-row">
+            <span class="info-label">Arrival Greeting</span>
+            <span class="info-val">Short welcome + offer media / relax</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Bedtime Trigger</span>
+            <span class="info-val">"Good night" (turns off TV, sets AC sleep timer)</span>
+          </div>
+        </div>
+
+        <!-- Learned Memories Card -->
+        <div class="info-card" style="grid-column: 1 / -1;">
+          <div class="info-card-header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            Learned Personal Facts & Notes
+          </div>
+          <div style="display:flex; gap:10px; margin-bottom: 16px;">
+            <input type="text" id="new-fact-input" class="form-input" placeholder="Tell Nova a fact to remember (e.g. 'I like drinking cold zobo in the afternoon')..."/>
+            <button class="btn btn-primary" style="white-space:nowrap;" onclick="addFact()">Add Fact</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">#</th>
+                  <th>Learned Fact</th>
+                  <th style="width: 80px; text-align:right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="memory-table-body">
+                <tr><td colspan="3">Loading facts...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 4. ALARMS & TIMERS TAB -->
-    <div id="tab-alarms" class="section-card">
+    <!-- 4. ABOUT THE AI (AI IDENTITY & DOSSIER) -->
+    <div id="tab-about-ai" class="section-card">
       <div class="card-header">
         <div>
-          <div class="card-title">Alarms & Background Timers</div>
-          <div class="card-subtitle">Set an alarm with audio chime directly from the web interface</div>
+          <div class="card-title">About Nova (AI Assistant Dossier)</div>
+          <div class="card-subtitle">Identity, behavioral ground rules, privacy guarantees, and local architecture</div>
         </div>
       </div>
 
+      <div class="info-grid-2">
+        <!-- Persona Card -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Assistant Identity & Persona
+          </div>
+          <div class="info-row">
+            <span class="info-label">Name</span>
+            <span class="info-val" id="about-ai-name">Nova</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Role</span>
+            <span class="info-val">Personal Smart Home Companion</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Tone</span>
+            <span class="info-val">Warm, natural, direct, intelligent</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Character</span>
+            <span class="info-val">Intelligent, calm, grounded, observant</span>
+          </div>
+        </div>
+
+        <!-- Hardware & Local Specs -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+            Local Hardware & Architecture
+          </div>
+          <div class="info-row">
+            <span class="info-label">LLM Brain</span>
+            <span class="info-val">Llama 3.2 3B Instruct (GGUF, 2.02 GB)</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Speech Recognition (STT)</span>
+            <span class="info-val">Faster-Whisper small.en (Nigerian English primed)</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Speech Synthesis (TTS)</span>
+            <span class="info-val">macOS Native Say / Piper Neural Voice</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Alarm Sound Engine</span>
+            <span class="info-val">3-Beep Synthesized Digital Chime</span>
+          </div>
+        </div>
+
+        <!-- Strict Rules & Boundaries Card -->
+        <div class="info-card" style="grid-column: 1 / -1;">
+          <div class="info-card-header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            Strict Ground Rules & Privacy Guarantees
+          </div>
+          
+          <div class="rule-callout shield">
+            <div>
+              <strong>🛡️ Non-Romantic Boundary:</strong> Nova is purely a personal assistant and smart companion. It will NEVER use pet names (no "my love", "sweetie", "honey", "darling", etc.).
+            </div>
+          </div>
+
+          <div class="rule-callout alert">
+            <div>
+              <strong>🏠 Home Sanctuary Policy:</strong> Strictly personal. Zero discussions about corporate, actuarial, insurance, or office work. Home is strictly for rest, entertainment, gadgets, and personal recharge.
+            </div>
+          </div>
+
+          <div class="rule-callout shield">
+            <div>
+              <strong>⚡ Adaptive Brevity:</strong> Concise and direct (1-2 sentences) by default; expands fully with all requested points when explanations, comparisons, or multi-item lists are requested.
+            </div>
+          </div>
+
+          <div class="rule-callout shield">
+            <div>
+              <strong>🔒 100% Offline & Private:</strong> Zero cloud telemetry, zero remote model APIs, zero external tracking. All models and voice processing execute 100% locally on your machine.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. ALARMS & TIMERS TAB -->
+    <div id="tab-alarms" class="section-card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Alarms & Active Timers</div>
+          <div class="card-subtitle">Live countdowns, cancel controls, and digital sound chime scheduler</div>
+        </div>
+        <button class="btn btn-danger" id="cancel-all-timers-btn" style="display:none;" onclick="cancelAllTimers()">Cancel All Timers</button>
+      </div>
+
+      <!-- Live Active Running Timers Section -->
+      <div style="margin-bottom: 24px;">
+        <div style="font-weight:600; font-size:13px; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between;">
+          <span>Active Running Timers</span>
+          <span id="active-timers-count-pill" class="badge badge-green">0 Running</span>
+        </div>
+        <div id="alarms-active-timers-container">
+          <div class="empty-state-box">No active alarms or timers running right now.</div>
+        </div>
+      </div>
+
+      <!-- Set Alarm Forms -->
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
         <!-- Timer by Duration -->
         <div style="background:var(--inset); padding:16px; border-radius:var(--radius-control); border:1px solid var(--line);">
           <div style="font-weight:600; font-size:13px; margin-bottom:8px;">Set by Duration</div>
           <div class="form-group">
-            <label>Seconds / Minutes</label>
-            <input type="number" id="alarm-seconds" class="form-input" placeholder="e.g. 60 (for 1 minute) or 1200"/>
+            <label>Duration in Seconds or Minutes</label>
+            <input type="number" id="alarm-seconds" class="form-input" placeholder="e.g. 60 (for 1 min) or 1200 (20 mins)"/>
           </div>
           <button class="btn btn-primary" onclick="setTimerSeconds()">Start Timer</button>
         </div>
@@ -1053,7 +2330,7 @@
         <div style="background:var(--inset); padding:16px; border-radius:var(--radius-control); border:1px solid var(--line);">
           <div style="font-weight:600; font-size:13px; margin-bottom:8px;">Set by Clock Time</div>
           <div class="form-group">
-            <label>Target Time</label>
+            <label>Target Clock Time</label>
             <input type="text" id="alarm-clock" class="form-input" placeholder="e.g. 7:30 AM or 14:00"/>
           </div>
           <button class="btn btn-primary" onclick="setClockAlarm()">Set Alarm</button>
@@ -1181,10 +2458,12 @@
     if (el) el.classList.add('active');
 
     const titles = {
+      'tab-livedisplay': ['Live Smart Display & Voice HUD', 'Ambient kiosk mode, real-time speech visualizer, and live telemetry stream.'],
       'tab-overview': ['Assistant Overview', 'Status, models, and real-time smart home controls.'],
+      'tab-user-profile': ['What Nova Knows (About You)', 'Personal habits, entertainment tastes, power rules, and long-term memory.'],
+      'tab-about-ai': ['About Nova (AI Assistant Dossier)', 'Identity, behavioral ground rules, privacy guarantees, and local architecture.'],
+      'tab-alarms': ['Alarms & Timers', 'Live countdowns, cancel controls, and digital sound chime scheduler.'],
       'tab-config': ['Assistant Configuration', 'Change preferred name, assistant personality, and arrival options.'],
-      'tab-memory': ['Memory & Facts', 'Review and edit facts learned by the agent.'],
-      'tab-alarms': ['Alarms & Timers', 'Schedule alarms with digital sound chimes.'],
       'tab-chat': ['Chat Console', 'Direct text interaction with your agentic tools and brain.']
     };
 
@@ -1192,6 +2471,182 @@
       document.getElementById('page-heading').innerText = titles[tabId][0];
       document.getElementById('page-subheading').innerText = titles[tabId][1];
     }
+
+    if (tabId === 'tab-livedisplay') {
+      updateClock();
+      pollLiveDisplay();
+      pollLiveEvents(true);
+    }
+  }
+
+  let activeTimersCache = [];
+
+  function formatTimeRemaining(totalSec) {
+    if (totalSec <= 0) return '0s remaining';
+    const hrs = Math.floor(totalSec / 3600);
+    const mins = Math.floor((totalSec % 3600) / 60);
+    const secs = Math.floor(totalSec % 60);
+    if (hrs > 0) return `${hrs}h ${mins}m ${secs}s left`;
+    if (mins > 0) return `${mins}m ${secs.toString().padStart(2, '0')}s left`;
+    return `${secs}s left`;
+  }
+
+  function renderActiveTimers(timers) {
+    activeTimersCache = timers || [];
+    const container = document.getElementById('alarms-active-timers-container');
+    const pill = document.getElementById('active-timers-count-pill');
+    const cancelAllBtn = document.getElementById('cancel-all-timers-btn');
+    const sidebarBadge = document.getElementById('sidebar-timer-badge');
+    const overviewTimersBadge = document.getElementById('disp-timers');
+
+    const count = activeTimersCache.length;
+    if (pill) pill.innerText = `${count} Running`;
+    if (cancelAllBtn) cancelAllBtn.style.display = count > 1 ? 'inline-flex' : 'none';
+    if (overviewTimersBadge) overviewTimersBadge.innerText = count;
+
+    if (sidebarBadge) {
+      sidebarBadge.innerText = count;
+      sidebarBadge.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+
+    if (!container) return;
+
+    if (count === 0) {
+      container.innerHTML = `<div class="empty-state-box">No active alarms or timers running right now.</div>`;
+      return;
+    }
+
+    container.innerHTML = activeTimersCache.map(t => {
+      const remText = formatTimeRemaining(t.remaining_seconds);
+      const pct = Math.max(0, Math.min(100, t.progress_pct || 0));
+      return `
+        <div class="timer-item-card" id="timer-card-${t.id}">
+          <div class="timer-item-header">
+            <div class="timer-title-group">
+              <div class="timer-pulsing-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path></svg>
+              </div>
+              <div>
+                <div style="font-weight:600; font-size:13.5px; color:var(--ink);">${(t.label || 'Alarm').toUpperCase()} &bull; ${t.display_time}</div>
+                <div style="font-size:11.5px; color:var(--ink-3);">Target: ${t.target_display || 'Scheduled'}</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="timer-countdown-pill" id="timer-rem-${t.id}">
+                <span class="pulse-dot" style="background:#f59e0b; width:6px; height:6px;"></span>
+                ${remText}
+              </span>
+              <button class="btn btn-danger" style="padding:4px 10px; font-size:11.5px;" onclick="cancelTimer('${t.id}')">Cancel</button>
+            </div>
+          </div>
+          <div class="timer-progress-wrap">
+            <div class="timer-progress-bar" id="timer-bar-${t.id}" style="width: ${pct}%;"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function tickActiveTimers() {
+    if (!activeTimersCache || activeTimersCache.length === 0) return;
+    let anyExpired = false;
+
+    activeTimersCache.forEach(t => {
+      t.remaining_seconds = Math.max(0, t.remaining_seconds - 1);
+      const remEl = document.getElementById(`timer-rem-${t.id}`);
+      const barEl = document.getElementById(`timer-bar-${t.id}`);
+
+      if (remEl) {
+        remEl.innerHTML = `<span class="pulse-dot" style="background:#f59e0b; width:6px; height:6px;"></span> ${formatTimeRemaining(t.remaining_seconds)}`;
+      }
+
+      if (barEl && t.total_seconds > 0) {
+        const pct = Math.max(0, Math.min(100, Math.round((1 - (t.remaining_seconds / t.total_seconds)) * 100)));
+        barEl.style.width = `${pct}%`;
+      }
+
+      if (t.remaining_seconds <= 0) {
+        anyExpired = true;
+      }
+    });
+
+    if (anyExpired) {
+      loadStatus();
+    }
+  }
+
+  setInterval(tickActiveTimers, 1000);
+
+  async function cancelTimer(timerId) {
+    try {
+      const res = await fetch('/api/timer', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({action: 'cancel', id: timerId})
+      });
+      const data = await res.json();
+      showToast(data.message || 'Timer canceled');
+      loadStatus();
+    } catch (e) {
+      showToast('Failed to cancel timer');
+    }
+  }
+
+  async function cancelAllTimers() {
+    if (!confirm('Cancel all active timers?')) return;
+    try {
+      const res = await fetch('/api/timer', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({action: 'cancel_all'})
+      });
+      const data = await res.json();
+      showToast(data.message || 'All timers canceled');
+      loadStatus();
+    } catch (e) {
+      showToast('Failed to cancel timers');
+    }
+  }
+
+  function renderUserProfile(mem) {
+    if (!mem) return;
+    const profile = mem.profile || {};
+    const prefs = mem.preferences || {};
+    const visitors = mem.household_members_and_visitors || [];
+
+    const nameEl = document.getElementById('prof-user-name');
+    if (nameEl) nameEl.innerText = profile.preferred_name || 'Timilehin';
+
+    const locEl = document.getElementById('prof-location');
+    if (locEl) locEl.innerText = profile.location || 'Nigeria';
+
+    const tzEl = document.getElementById('prof-timezone');
+    if (tzEl) tzEl.innerText = profile.timezone || 'Africa/Lagos';
+
+    const roleEl = document.getElementById('prof-user-role');
+    if (roleEl && visitors.length > 0) {
+      roleEl.innerText = visitors[0].role || 'Owner / Primary Resident';
+    }
+
+    // Series chips
+    const series = (prefs.entertainment && prefs.entertainment.favorite_series) ? prefs.entertainment.favorite_series : [];
+    const seriesEl = document.getElementById('prof-series-chips');
+    if (seriesEl && series.length > 0) {
+      seriesEl.innerHTML = series.map(s => `<span class="tag-chip">🎬 ${s}</span>`).join('');
+    }
+
+    // Genre chips
+    const genres = (prefs.entertainment && prefs.entertainment.favorite_genres) ? prefs.entertainment.favorite_genres : [];
+    const genreEl = document.getElementById('prof-genre-chips');
+    if (genreEl && genres.length > 0) {
+      genreEl.innerHTML = genres.map(g => `<span class="tag-chip">${g}</span>`).join('');
+    }
+  }
+
+  function renderAboutAI(asst) {
+    if (!asst) return;
+    const nameEl = document.getElementById('about-ai-name');
+    if (nameEl && asst.name) nameEl.innerText = asst.name;
   }
 
   async function loadStatus() {
@@ -1211,6 +2666,13 @@
       document.getElementById('cfg-assistant').value = data.config.assistant_name || '';
       document.getElementById('cfg-greeting').value = data.config.greeting_text || '';
       document.getElementById('cfg-macs').value = (data.config.mac_addresses || []).join(', ');
+
+      // Render Active Timers
+      renderActiveTimers(data.active_timers_list || []);
+
+      // Render User Profile & AI Dossier
+      renderUserProfile(data.memory || {});
+      renderAboutAI(data.assistant || {});
 
       // Update models table
       const mb = document.getElementById('models-table-body');
@@ -1575,6 +3037,398 @@
   // Initial load
   loadStatus();
   setInterval(loadStatus, 10000);
+
+  /* ==========================================================================
+     LIVE DISPLAY CONTROLLER (Kiosk, Voice HUD & Telemetry Stream)
+     ========================================================================== */
+  let currentTelemetryFilter = 'all';
+  let telemetryAutoScroll = true;
+  let isKioskModeActive = false;
+  let webSpeechRecognition = null;
+  let isWebMicListening = false;
+
+  // 1. Clock & Ambient Date
+  function updateClock() {
+    const clockEl = document.getElementById('kiosk-clock');
+    const dateEl = document.getElementById('kiosk-date');
+    const greetingEl = document.getElementById('kiosk-greeting-text');
+    if (!clockEl) return;
+
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = String(hours % 12 || 12).padStart(2, '0');
+
+    clockEl.innerHTML = `${displayHours}:${minutes}:${seconds}<span class="time-ampm" id="kiosk-ampm">${ampm}</span>`;
+
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    if (dateEl) {
+      dateEl.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <span>${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}</span>
+      `;
+    }
+
+    if (greetingEl) {
+      const user = cachedStatus?.config?.user_name || 'Timilehin';
+      let salutation = 'Welcome home';
+      if (hours < 12) salutation = 'Good morning';
+      else if (hours < 17) salutation = 'Good afternoon';
+      else salutation = 'Good evening';
+      greetingEl.innerText = `${salutation}, ${user}`;
+    }
+  }
+
+  // 2. Kiosk Mode Toggle (Ambient Fullscreen)
+  function toggleKioskMode(enable) {
+    isKioskModeActive = enable !== undefined ? enable : !isKioskModeActive;
+    if (isKioskModeActive) {
+      document.body.classList.add('kiosk-mode');
+      showTab('tab-livedisplay', document.getElementById('nav-item-livedisplay'));
+      try {
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      } catch (e) {}
+      showToast("Ambient Kiosk Mode activated. Press ESC to exit.");
+    } else {
+      document.body.classList.remove('kiosk-mode');
+      try {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      } catch (e) {}
+    }
+  }
+
+  // Handle Fullscreen exit / ESC key
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && isKioskModeActive) {
+      toggleKioskMode(false);
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isKioskModeActive) {
+      toggleKioskMode(false);
+    } else if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      toggleKioskMode();
+    }
+  });
+
+  // 3. Poll Live Display Data & Active Timers
+  async function pollLiveDisplay() {
+    const liveTab = document.getElementById('tab-livedisplay');
+    if (!liveTab || !liveTab.classList.contains('visible')) return;
+
+    const startTime = performance.now();
+    try {
+      const res = await fetch('/api/status');
+      const latencyMs = Math.round(performance.now() - startTime);
+      const data = await res.json();
+      cachedStatus = data;
+
+      // Update ping latency
+      const latEl = document.getElementById('telemetry-latency');
+      if (latEl) latEl.innerText = `${latencyMs} ms`;
+
+      // Presence Beacon & Info
+      const isHome = data.state?.presence?.is_user_home;
+      const userName = data.config?.user_name || 'Timilehin';
+      const beaconEl = document.getElementById('live-beacon-indicator');
+      const beaconStatus = document.getElementById('live-beacon-status');
+      const presenceIp = document.getElementById('live-presence-ip');
+      const kioskUser = document.getElementById('kiosk-user-presence');
+      const kioskPresenceBadge = document.getElementById('kiosk-presence-badge');
+      const kioskPresenceMeta = document.getElementById('kiosk-presence-meta');
+
+      if (kioskUser) kioskUser.innerText = userName;
+      if (presenceIp) presenceIp.innerText = `Target IP: ${data.config?.phone_ip || '192.168.1.150'}`;
+
+      if (beaconEl && beaconStatus) {
+        if (isHome) {
+          beaconEl.className = 'live-beacon-pill';
+          beaconStatus.innerText = `ONLINE • ${userName} is Home`;
+          if (kioskPresenceBadge) {
+            kioskPresenceBadge.className = 'badge badge-green';
+            kioskPresenceBadge.innerText = 'Home';
+          }
+          if (kioskPresenceMeta) kioskPresenceMeta.innerText = 'Device connected on Wi-Fi • Standby';
+        } else {
+          beaconEl.className = 'live-beacon-pill away';
+          beaconStatus.innerText = `AWAY • Monitoring Home Network`;
+          if (kioskPresenceBadge) {
+            kioskPresenceBadge.className = 'badge badge-gray';
+            kioskPresenceBadge.innerText = 'Away';
+          }
+          if (kioskPresenceMeta) kioskPresenceMeta.innerText = 'Waiting for phone to appear on Wi-Fi';
+        }
+      }
+
+      // Snapshot cards
+      const powerVal = document.getElementById('kiosk-power-val');
+      if (powerVal) {
+        const pwr = data.state?.power;
+        const grid = pwr?.grid_available ? 'Grid Active' : 'Inverter Battery';
+        const batt = pwr?.inverter_battery_percentage ? ` (${pwr.inverter_battery_percentage}%)` : '';
+        powerVal.innerText = `${grid}${batt}`;
+      }
+
+      // Active Timers Render
+      const timersListEl = document.getElementById('live-timers-list');
+      const timersCountEl = document.getElementById('live-timers-count');
+      const timers = data.active_timers_list || [];
+      if (timersCountEl) timersCountEl.innerText = `${timers.length} Running`;
+
+      if (timersListEl) {
+        if (timers.length === 0) {
+          timersListEl.innerHTML = '<div class="timer-empty-state">No active alarms or timers running</div>';
+        } else {
+          timersListEl.innerHTML = timers.map(t => {
+            const rem = Math.max(0, Math.round(t.remaining_seconds));
+            const m = Math.floor(rem / 60);
+            const s = String(rem % 60).padStart(2, '0');
+            return `
+              <div class="timer-ring-card">
+                <div>
+                  <div class="timer-ring-label">⏰ ${t.label || 'Alarm'}</div>
+                  <div class="timer-ring-meta">${t.display_time} • ${t.progress_pct}% elapsed</div>
+                </div>
+                <div class="timer-countdown-val">${m}:${s}</div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // Voice Orb & Subtitles
+      const asstRuntime = data.assistant_runtime || {};
+      const orbEl = document.getElementById('live-ai-orb');
+      const orbStateText = document.getElementById('live-orb-state-text');
+      const heardEl = document.getElementById('live-heard-text');
+      const replyEl = document.getElementById('live-reply-text');
+
+      if (heardEl && asstRuntime.last_heard) {
+        heardEl.innerText = `"${asstRuntime.last_heard}"`;
+      }
+      if (replyEl && asstRuntime.last_reply) {
+        replyEl.innerText = `"${asstRuntime.last_reply}"`;
+      }
+
+      // Only update orb from server if web mic is not overriding
+      if (!isWebMicListening && orbEl && orbStateText) {
+        const rawState = (asstRuntime.state || 'IDLE').toUpperCase();
+        orbEl.className = 'ai-orb-wrapper';
+
+        if (rawState === 'LISTENING' || rawState === 'WAITING_FOR_GREETING') {
+          orbEl.classList.add('listening');
+          orbStateText.innerText = 'Listening for speech...';
+        } else if (rawState === 'THINKING') {
+          orbEl.classList.add('thinking');
+          orbStateText.innerText = 'Processing thought & tools...';
+        } else if (rawState === 'SPEAKING') {
+          orbEl.classList.add('speaking');
+          orbStateText.innerText = 'Speaking response aloud...';
+        } else if (rawState === 'AWAY') {
+          orbStateText.innerText = 'Waiting for arrival...';
+        } else {
+          orbStateText.innerText = `Standby • Say "Hey" or "Hello"`;
+        }
+      }
+
+    } catch (e) {
+      console.warn("pollLiveDisplay error:", e);
+    }
+  }
+
+  // 4. Telemetry Stream & Log Events
+  function setTelemetryFilter(category, btn) {
+    currentTelemetryFilter = category;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    pollLiveEvents(true);
+  }
+
+  function toggleTelemetryAutoScroll() {
+    telemetryAutoScroll = !telemetryAutoScroll;
+    const btn = document.getElementById('btn-autoscroll');
+    if (btn) btn.innerText = `Auto-scroll: ${telemetryAutoScroll ? 'ON' : 'OFF'}`;
+  }
+
+  async function pollLiveEvents(force = false) {
+    const liveTab = document.getElementById('tab-livedisplay');
+    if (!liveTab || (!liveTab.classList.contains('visible') && !force)) return;
+
+    try {
+      const url = `/api/events?limit=40&category=${encodeURIComponent(currentTelemetryFilter)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const events = data.events || [];
+
+      const feedEl = document.getElementById('telemetry-feed');
+      const countEl = document.getElementById('telemetry-count-label');
+      if (countEl) countEl.innerText = `${events.length} events loaded`;
+
+      if (feedEl) {
+        if (events.length === 0) {
+          feedEl.innerHTML = '<div style="color:var(--ink-3); text-align:center; padding:24px 0;">No events in this category yet.</div>';
+        } else {
+          feedEl.innerHTML = events.map(e => {
+            const timeStr = e.timestamp ? e.timestamp.split('T')[1]?.split('.')[0] || e.timestamp : '';
+            const cat = (e.category || 'system').toLowerCase();
+            return `
+              <div class="telemetry-row">
+                <span class="telemetry-time">${timeStr}</span>
+                <span class="telemetry-tag ${cat}">${cat}</span>
+                <span class="telemetry-msg">${escapeHtml(e.note || '')}</span>
+              </div>
+            `;
+          }).join('');
+
+          if (telemetryAutoScroll) {
+            feedEl.scrollTop = feedEl.scrollHeight;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("pollLiveEvents error:", e);
+    }
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, m => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[m]);
+  }
+
+  // 5. In-Browser Speech Recognition & Push-to-Talk
+  function toggleWebSpeechMic() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      showToast("Speech recognition not supported in this browser. Use laptop microphone or type below.");
+      return;
+    }
+
+    const micBtn = document.getElementById('btn-live-mic');
+    const micText = document.getElementById('btn-live-mic-text');
+    const orb = document.getElementById('live-ai-orb');
+    const orbText = document.getElementById('live-orb-state-text');
+    const heardEl = document.getElementById('live-heard-text');
+
+    if (isWebMicListening && webSpeechRecognition) {
+      webSpeechRecognition.stop();
+      return;
+    }
+
+    try {
+      webSpeechRecognition = new SpeechRecognition();
+      webSpeechRecognition.lang = 'en-US';
+      webSpeechRecognition.interimResults = true;
+      webSpeechRecognition.continuous = false;
+
+      webSpeechRecognition.onstart = () => {
+        isWebMicListening = true;
+        if (micBtn) micBtn.classList.add('active-listening');
+        if (micText) micText.innerText = 'Listening to your voice...';
+        if (orb) {
+          orb.className = 'ai-orb-wrapper listening';
+        }
+        if (orbText) orbText.innerText = 'Listening to your voice...';
+      };
+
+      webSpeechRecognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          transcript += event.results[i][0].transcript;
+        }
+        if (heardEl) heardEl.innerText = `"${transcript}"`;
+
+        if (event.results[0].isFinal) {
+          triggerQuickSpoken(transcript);
+        }
+      };
+
+      webSpeechRecognition.onerror = (event) => {
+        console.warn("Web speech error:", event.error);
+        stopWebMic();
+      };
+
+      webSpeechRecognition.onend = () => {
+        stopWebMic();
+      };
+
+      webSpeechRecognition.start();
+    } catch (e) {
+      console.error("Speech init error:", e);
+      stopWebMic();
+    }
+  }
+
+  function stopWebMic() {
+    isWebMicListening = false;
+    const micBtn = document.getElementById('btn-live-mic');
+    const micText = document.getElementById('btn-live-mic-text');
+    if (micBtn) micBtn.classList.remove('active-listening');
+    if (micText) micText.innerText = 'Push to Talk (Browser Mic)';
+  }
+
+  // 6. Quick Spoken Prompts & Direct Execution
+  async function triggerQuickSpoken(phrase) {
+    if (!phrase || !phrase.trim()) return;
+    const orb = document.getElementById('live-ai-orb');
+    const orbText = document.getElementById('live-orb-state-text');
+    const heardEl = document.getElementById('live-heard-text');
+    const replyEl = document.getElementById('live-reply-text');
+
+    if (heardEl) heardEl.innerText = `"${phrase}"`;
+    if (orb) orb.className = 'ai-orb-wrapper thinking';
+    if (orbText) orbText.innerText = 'Thinking & processing...';
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: phrase})
+      });
+      const data = await res.json();
+      const reply = data.reply || 'Request completed.';
+
+      if (replyEl) replyEl.innerText = `"${reply}"`;
+      if (orb) orb.className = 'ai-orb-wrapper speaking';
+      if (orbText) orbText.innerText = 'Assistant speaking...';
+
+      // Optional: use browser SpeechSynthesis if supported for audio feedback
+      if ('speechSynthesis' in window) {
+        const utter = new SpeechSynthesisUtterance(reply);
+        utter.rate = 1.05;
+        utter.onend = () => {
+          if (orb) orb.className = 'ai-orb-wrapper';
+          if (orbText) orbText.innerText = 'Standby • Say "Hey" or "Hello"';
+        };
+        window.speechSynthesis.speak(utter);
+      } else {
+        setTimeout(() => {
+          if (orb) orb.className = 'ai-orb-wrapper';
+          if (orbText) orbText.innerText = 'Standby • Say "Hey" or "Hello"';
+        }, 3000);
+      }
+
+      pollLiveEvents(true);
+      loadStatus();
+    } catch (e) {
+      if (replyEl) replyEl.innerText = `Error: ${e.message}`;
+      if (orb) orb.className = 'ai-orb-wrapper';
+      if (orbText) orbText.innerText = 'Standby';
+    }
+  }
+
+  // Start real-time live clock and polling intervals
+  setInterval(updateClock, 1000);
+  setInterval(pollLiveDisplay, 1500);
+  setInterval(() => pollLiveEvents(false), 2000);
 </script>
 </body>
 </html>

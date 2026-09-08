@@ -120,6 +120,51 @@ class MemoryManager:
         except Exception as e:
             print(f"[Memory] Error writing to memory_log.jsonl: {e}")
 
+    def get_recent_logs(self, limit: int = 50, category: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Returns the most recent events from memory_log.jsonl in reverse chronological order."""
+        if not os.path.exists(self.log_file):
+            return []
+        entries: List[Dict[str, Any]] = []
+        try:
+            with open(self.log_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        try:
+                            entries.append(json.loads(line))
+                        except Exception:
+                            continue
+        except Exception as e:
+            print(f"[Memory] Error reading memory_log.jsonl: {e}")
+            return []
+
+        if category and category.lower() != "all":
+            entries = [e for e in entries if e.get("category", "").lower() == category.lower()]
+
+        return list(reversed(entries[-limit:]))
+
+    def update_assistant_runtime(
+        self,
+        runtime_state: str,
+        last_heard: Optional[str] = None,
+        last_reply: Optional[str] = None,
+    ) -> None:
+        """Updates the live assistant state in state.json for HUD and kiosk views."""
+        state = self.load_state()
+        asst = state.setdefault("assistant_runtime", {
+            "state": "IDLE",
+            "last_heard": "",
+            "last_reply": "",
+            "updated_at": datetime.now().isoformat(),
+        })
+        asst["state"] = runtime_state
+        if last_heard is not None:
+            asst["last_heard"] = last_heard
+        if last_reply is not None:
+            asst["last_reply"] = last_reply
+        asst["updated_at"] = datetime.now().isoformat()
+        self.save_state(state)
+
     def get_llm_system_prompt(self) -> str:
         """Generates the system prompt context using assistant.json and memory.json."""
         assistant = self.load_assistant()

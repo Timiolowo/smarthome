@@ -6,12 +6,14 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 from src.agent import agent
+from src.memory import memory
 from src.tools import tools, play_alarm_sound
 
 WEB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web")
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
 MEMORY_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "memory.json")
 STATE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "state.json")
+ASSISTANT_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "assistant.json")
 MODELS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models")
 
 
@@ -21,6 +23,14 @@ def get_system_status():
         try:
             with open(CONFIG_PATH, "r", encoding="utf-8") as f:
                 cfg = json.load(f)
+        except Exception:
+            pass
+
+    assistant_info = {}
+    if os.path.exists(ASSISTANT_PATH):
+        try:
+            with open(ASSISTANT_PATH, "r", encoding="utf-8") as f:
+                assistant_info = json.load(f)
         except Exception:
             pass
 
@@ -60,12 +70,23 @@ def get_system_status():
         "tts": file_info(tts_onnx, 60_000_000),
     }
 
+    active_timers = tools.get_active_timers()
+    assistant_runtime = state.get("assistant_runtime", {
+        "state": "IDLE",
+        "last_heard": "",
+        "last_reply": "",
+        "updated_at": datetime.now().isoformat(),
+    })
+
     return {
         "config": cfg,
+        "assistant": assistant_info,
         "memory": mem,
         "state": state,
         "models": models_info,
-        "active_timers": len(tools.active_timers),
+        "active_timers": len(active_timers),
+        "active_timers_list": active_timers,
+        "assistant_runtime": assistant_runtime,
         "server_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
@@ -110,10 +131,41 @@ class AssistantRequestHandler(BaseHTTPRequestHandler):
             self._send_file(index_file, "text/html")
         elif path == "/api/status":
             self._send_json(get_system_status())
+        elif path == "/api/events":
+            qs = parse_qs(parsed.query)
+            try:
+                limit = int(qs.get("limit", [50])[0])
+            except Exception:
+                limit = 50
+            category = qs.get("category", [None])[0]
+            events = memory.get_recent_logs(limit=limit, category=category)
+            self._send_json({"ok": True, "events": events})
         elif path == "/api/test-chime":
             threading.Thread(target=play_alarm_sound, args=(2,), daemon=True).start()
             self._send_json({"ok": True, "message": "Chime triggered"})
         else:
+            # Check for static files under WEB_DIR (css, js, icons, etc.)
+            clean_rel = os.path.normpath(path.lstrip("/"))
+            target_path = os.path.abspath(os.path.join(WEB_DIR, clean_rel))
+            if os.path.isfile(target_path) and os.path.commonpath([WEB_DIR, target_path]) == WEB_DIR:
+                ext = os.path.splitext(target_path)[1].lower()
+                mimes = {
+                    ".css": "text/css",
+                    ".js": "application/javascript",
+                    ".json": "application/json",
+                    ".svg": "image/svg+xml",
+                    ".png": "image/png",
+                    ".jpg": "image/jpeg",
+                    ".jpeg": "image/jpeg",
+                    ".ico": "image/x-icon",
+                    ".woff2": "font/woff2",
+                    ".woff": "font/woff",
+                    ".ttf": "font/ttf",
+                }
+                c_type = mimes.get(ext, "text/plain")
+                self._send_file(target_path, c_type)
+                return
+
             # Fallback to index.html for SPA routing
             index_file = os.path.join(WEB_DIR, "index.html")
             self._send_file(index_file, "text/html")
@@ -134,8 +186,18 @@ class AssistantRequestHandler(BaseHTTPRequestHandler):
             if not user_text:
                 self._send_json({"error": "Empty message"}, status=400)
                 return
+            memory.update_assistant_runtime(runtime_state="THINKING", last_heard=user_text)
             reply = agent.process_message(user_text)
+            memory.update_assistant_runtime(runtime_state="SPEAKING", last_heard=user_text, last_reply=reply)
+            memory.log_event("agent", f"User: {user_text} -> Nova: {reply}")
             self._send_json({"reply": reply, "history": agent.persistent_history})
+
+        elif path == "/api/assistant-state":
+            st = body.get("state", "IDLE")
+            last_heard = body.get("last_heard")
+            last_reply = body.get("last_reply")
+            memory.update_assistant_runtime(st, last_heard=last_heard, last_reply=last_reply)
+            self._send_json({"ok": True})
 
         elif path == "/api/config":
             # Update config fields
@@ -190,6 +252,17 @@ class AssistantRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"error": "Unknown action"}, status=400)
 
         elif path == "/api/timer":
+            action = body.get("action")
+            if action == "cancel":
+                timer_id = body.get("id")
+                ok = tools.cancel_timer(timer_id)
+                self._send_json({"ok": ok, "message": "Timer canceled" if ok else "Timer not found"})
+                return
+            elif action == "cancel_all":
+                count = tools.cancel_all_timers()
+                self._send_json({"ok": True, "message": f"Canceled {count} active timers"})
+                return
+
             seconds = body.get("seconds")
             clock_time = body.get("clock_time")
             label = body.get("label", "alarm")
@@ -201,7 +274,7 @@ class AssistantRequestHandler(BaseHTTPRequestHandler):
                 res = tools.set_clock_alarm(clock_time, label=label)
                 self._send_json({"ok": True, "message": res})
             else:
-                self._send_json({"error": "Provide seconds or clock_time"}, status=400)
+                self._send_json({"error": "Provide seconds, clock_time, or action='cancel'"}, status=400)
 
         else:
             self.send_error(404, "Endpoint Not Found")

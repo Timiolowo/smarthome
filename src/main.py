@@ -79,11 +79,13 @@ def run_assistant(simulate_presence: bool = False):
             # STATE 1: AWAY (Waiting for phone to appear on Wi-Fi)
             # -------------------------------------------------------------
             if state == "AWAY":
+                memory.update_assistant_runtime(runtime_state="AWAY")
                 if is_home:
                     memory.update_presence(True)
                     print(f"\n{Fore.GREEN}📍 [PRESENCE]: {config.user_name}'s phone detected on home network!{Style.RESET_ALL}")
                     print(f"{Fore.YELLOW}👂 [VOICE]: Waiting for {config.user_name} to say hello...{Style.RESET_ALL}")
                     state = "WAITING_FOR_HELLO"
+                    memory.update_assistant_runtime(runtime_state="WAITING_FOR_GREETING")
                 else:
                     print(f"⏳ [AWAY]: {config.user_name} is away. Checking again in {config.presence_poll_interval_seconds}s...", end="\r", flush=True)
                     time.sleep(config.presence_poll_interval_seconds)
@@ -105,20 +107,24 @@ def run_assistant(simulate_presence: bool = False):
                     else:
                         greeting = config.greeting_text
 
+                    memory.update_assistant_runtime(runtime_state="SPEAKING", last_heard="Hello", last_reply=greeting)
                     speak(greeting, listener=listener, interruptible=False, voice=config.voice_name)
                     # Enter continuous dialogue mode immediately!
                     state = "CONVERSING"
+                    memory.update_assistant_runtime(runtime_state="LISTENING")
                 else:
                     # Check if user left while waiting
                     if not simulate_presence and not tracker.update():
                         memory.update_presence(False)
                         print(f"\n{Fore.YELLOW}📍 [PRESENCE]: Device disconnected. Returning to AWAY state.{Style.RESET_ALL}")
                         state = "AWAY"
+                        memory.update_assistant_runtime(runtime_state="AWAY")
 
             # -------------------------------------------------------------
             # STATE 3: CONVERSING (Interactive multi-turn continuous dialogue)
             # -------------------------------------------------------------
             elif state == "CONVERSING":
+                memory.update_assistant_runtime(runtime_state="LISTENING")
                 user_said = listener.listen_once(
                     timeout=8,
                     phrase_time_limit=10,
@@ -129,27 +135,34 @@ def run_assistant(simulate_presence: bool = False):
                     if any(exit_word in user_said for exit_word in EXIT_PHRASES):
                         print(f"\n{Fore.CYAN}👋 [CONVERSATION ENDED]: Closing dialogue loop.{Style.RESET_ALL}")
                         farewell = "Enjoy your evening, Timilehin. Let me know if you need anything."
+                        memory.update_assistant_runtime(runtime_state="SPEAKING", last_heard=user_said, last_reply=farewell)
                         speak(farewell, interruptible=False, voice=config.voice_name)
                         state = "HOME_STANDBY"
+                        memory.update_assistant_runtime(runtime_state="IDLE")
                         print(f"\n{Fore.BLUE}💤 [STANDBY]: System in standby. Say 'Hey' or 'Hello' anytime to talk.{Style.RESET_ALL}\n")
                     else:
                         # Multi-turn response with agentic tool routing and memory
+                        memory.update_assistant_runtime(runtime_state="THINKING", last_heard=user_said)
                         reply = agent.process_message(user_said)
+                        memory.update_assistant_runtime(runtime_state="SPEAKING", last_heard=user_said, last_reply=reply)
                         speak(reply, listener=listener, interruptible=False, voice=config.voice_name)
                         # Loop remains in CONVERSING for next turn
                 else:
                     # User stopped talking / silence timeout -> transition to standby
                     state = "HOME_STANDBY"
+                    memory.update_assistant_runtime(runtime_state="IDLE")
                     print(f"\n{Fore.BLUE}💤 [STANDBY]: Conversation paused. Say 'Hey' or 'Hello' anytime to resume.{Style.RESET_ALL}\n")
 
             # -------------------------------------------------------------
             # STATE 4: HOME_STANDBY (Quietly waiting for wake word or departure)
             # -------------------------------------------------------------
             elif state == "HOME_STANDBY":
+                memory.update_assistant_runtime(runtime_state="IDLE")
                 if not simulate_presence and not tracker.update():
                     memory.update_presence(False)
                     print(f"\n{Fore.RED}📍 [PRESENCE]: {config.user_name} departed (phone disconnected).{Style.RESET_ALL}")
                     state = "AWAY"
+                    memory.update_assistant_runtime(runtime_state="AWAY")
                 else:
                     # Listen briefly for wake words (e.g. "hey", "hello")
                     woke_up = listener.wait_for_trigger(
@@ -159,8 +172,10 @@ def run_assistant(simulate_presence: bool = False):
                     )
                     if woke_up:
                         print(f"\n{Fore.GREEN}✨ [WAKE TRIGGER]: Assistant activated!{Style.RESET_ALL}")
+                        memory.update_assistant_runtime(runtime_state="SPEAKING", last_heard="Hey", last_reply="Yes, Timilehin?")
                         speak("Yes, Timilehin?", listener=listener, interruptible=False, voice=config.voice_name)
                         state = "CONVERSING"
+                        memory.update_assistant_runtime(runtime_state="LISTENING")
 
     except KeyboardInterrupt:
         print(f"\n\n{Fore.YELLOW}Shutting down Home Assistant. Goodbye!{Style.RESET_ALL}")
