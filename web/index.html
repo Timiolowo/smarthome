@@ -733,6 +733,9 @@
       background: var(--hover);
       color: var(--ink);
     }
+    .prompt-bar-action-btn svg {
+      pointer-events: none;
+    }
     .prompt-bar-action-btn.send-action {
       background: var(--accent);
       color: white;
@@ -1138,6 +1141,9 @@
 <div id="toast">Changes saved</div>
 
 <script>
+  if (window.location.protocol === 'file:') {
+    console.warn("SmartHome Assistant: Opened via file:// protocol. API calls require http://localhost:5050");
+  }
   let cachedStatus = null;
 
   function setTheme(mode) {
@@ -1339,18 +1345,6 @@
   async function testChime() {
     showToast('Triggering alarm chime...');
     await fetch('/api/test-chime');
-  }
-
-  let lastUserQuery = '';
-
-  function copyText(encoded, btn) {
-    const text = decodeURIComponent(encoded);
-    navigator.clipboard.writeText(text).then(() => {
-      showToast("Copied to clipboard!");
-      const original = btn.innerHTML;
-      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-      setTimeout(() => btn.innerHTML = original, 1800);
-    });
   }
 
   function toggleQuickActions() {
