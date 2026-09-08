@@ -556,23 +556,264 @@
       color: var(--ink);
     }
 
-    .prompt-bar-wrap {
-      display: flex;
-      gap: 8px;
-      padding: 12px;
-      background: var(--surface);
-      border-top: 1px solid var(--line);
+    /* 1. Loading State (Pixel Matrix + Shimmer) from beautifului.dev */
+    @keyframes shimmer-text {
+      0% { background-position: 100% 0; }
+      100% { background-position: -100% 0; }
+    }
+    .shimmer-text {
+      background-image: linear-gradient(90deg, var(--ink-3) 25%, var(--ink) 50%, var(--ink-3) 75%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer-text 1.5s linear infinite;
+      font-weight: 500;
     }
 
-    .prompt-bar-input {
-      flex: 1;
+    .loading-state-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: var(--radius-control);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-card);
+      margin: 4px 0;
+    }
+
+    .pixel-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 4px);
+      gap: 2px;
+      width: 16px;
+      height: 16px;
+      align-items: center;
+      justify-content: center;
+    }
+    .pixel-dot {
+      width: 4px;
+      height: 4px;
+      background: var(--ink);
+      border-radius: 1px;
+      opacity: 0.2;
+      animation: pixel-pulse 700ms ease-in-out infinite;
+    }
+    .pixel-dot:nth-child(1) { animation-delay: 0ms; }
+    .pixel-dot:nth-child(2) { animation-delay: 100ms; }
+    .pixel-dot:nth-child(3) { animation-delay: 200ms; }
+    .pixel-dot:nth-child(4) { animation-delay: 100ms; }
+    .pixel-dot:nth-child(5) { animation-delay: 200ms; }
+    .pixel-dot:nth-child(6) { animation-delay: 300ms; }
+    .pixel-dot:nth-child(7) { animation-delay: 200ms; }
+    .pixel-dot:nth-child(8) { animation-delay: 300ms; }
+    .pixel-dot:nth-child(9) { animation-delay: 400ms; }
+
+    @keyframes pixel-pulse {
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 0.95; }
+    }
+
+    /* 2. Thinking State (Expandable Trace) from beautifului.dev */
+    .thinking-container {
+      margin-bottom: 8px;
+    }
+    .thinking-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       background: var(--field);
       border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 10px 18px;
-      font-size: 13px;
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: var(--ink-2);
+      cursor: pointer;
+      transition: all 120ms ease;
+    }
+    .thinking-btn:hover {
+      background: var(--hover);
       color: var(--ink);
+    }
+    .thinking-chevron {
+      transition: transform 200ms ease;
+    }
+    .thinking-chevron.open {
+      transform: rotate(180deg);
+    }
+    .thinking-drawer {
+      display: none;
+      margin-top: 6px;
+      padding: 8px 12px;
+      background: var(--inset);
+      border-radius: 8px;
+      border: 1px dashed var(--line);
+      font-size: 11.5px;
+      color: var(--ink-2);
+      line-height: 1.6;
+    }
+    .thinking-drawer.open {
+      display: block;
+      animation: fadeUp 200ms ease both;
+    }
+    .trace-step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .trace-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    /* 3. Tool Chips Header */
+    .tool-chips-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed var(--line);
+    }
+    .tool-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--field);
+      border: 1px solid var(--line);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink-2);
+      transition: all 150ms ease;
+    }
+    .tool-chip:hover {
+      background: var(--hover-2);
+      color: var(--ink);
+    }
+
+    /* 4. Beautiful UI Prompt Bar (Component 08) */
+    .prompt-bar-card {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow-card);
+      padding: 6px;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+      margin-top: 8px;
+    }
+    .prompt-bar-card:focus-within {
+      border-color: var(--line-strong);
+      box-shadow: var(--shadow-card), 0 0 0 1px var(--line-strong);
+    }
+    .prompt-bar-grid {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr) auto 32px 32px;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    .prompt-bar-action-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--ink-3);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 120ms ease;
+    }
+    .prompt-bar-action-btn:hover {
+      background: var(--hover);
+      color: var(--ink);
+    }
+    .prompt-bar-action-btn.send-action {
+      background: var(--accent);
+      color: white;
+    }
+    .prompt-bar-action-btn.send-action:hover {
+      background: var(--accent-ink);
+    }
+    .prompt-bar-textarea {
+      min-height: 28px;
+      max-height: 120px;
+      padding: 5px 6px;
+      font-size: 13px;
+      line-height: 18px;
+      border: none;
       outline: none;
+      background: transparent;
+      color: var(--ink);
+      font-family: inherit;
+      resize: none;
+      width: 100%;
+    }
+    .model-badge-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--ink-2);
+      background: var(--field);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      transition: all 120ms ease;
+      height: 30px;
+    }
+    .model-badge-btn:hover {
+      background: var(--hover);
+      color: var(--ink);
+    }
+    .model-dot-live {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--green);
+    }
+
+    /* Popover Menu for + Shortcuts */
+    .quick-actions-popover {
+      position: absolute;
+      bottom: 48px;
+      left: 6px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow-card), 0 4px 16px rgba(0,0,0,0.12);
+      padding: 4px;
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 190px;
+      z-index: 100;
+      animation: fadeUp 150ms ease both;
+    }
+    .quick-actions-popover.show {
+      display: flex;
+    }
+    .quick-action-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--ink-2);
+      cursor: pointer;
+      transition: all 100ms ease;
+    }
+    .quick-action-item:hover {
+      background: var(--hover);
+      color: var(--ink);
     }
 
     /* Notification toast */
@@ -826,14 +1067,68 @@
         </div>
       </div>
 
+      <!-- Tool Chips Bar (beautifului.dev) -->
+      <div class="tool-chips-bar">
+        <span class="tool-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path></svg> Timers & Alarms</span>
+        <span class="tool-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg> Memory Facts</span>
+        <span class="tool-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Identity Routing</span>
+        <span class="tool-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path></svg> Whisper small.en</span>
+      </div>
+
       <div class="chat-window">
         <div class="chat-messages" id="chat-msgs">
           <div class="chat-msg assistant">Hello! I am ready. You can test voice commands or talk with me here.</div>
         </div>
-        <form class="prompt-bar-wrap" onsubmit="sendChatMessage(event)">
-          <input type="text" id="chat-input" class="prompt-bar-input" placeholder="Type a message (e.g. 'address me as Sam' or 'play an alarm in 10s')..." autocomplete="off"/>
-          <button type="submit" class="btn btn-primary">Send</button>
-        </form>
+      </div>
+
+      <!-- Beautiful UI Prompt Bar (Component 08) -->
+      <div class="prompt-bar-card">
+        <!-- Quick Actions Popover Menu -->
+        <div id="quick-actions-menu" class="quick-actions-popover">
+          <div class="quick-action-item" onclick="insertPrompt('Play an alarm sound in 30 seconds')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path></svg>
+            Play 30s Alarm Chime
+          </div>
+          <div class="quick-action-item" onclick="insertPrompt('Set an alarm for 7:30 AM')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Set Clock Alarm
+          </div>
+          <div class="quick-action-item" onclick="insertPrompt('Remember that ')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg>
+            Remember Fact...
+          </div>
+          <div class="quick-action-item" onclick="insertPrompt('What power source are we using?')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            Check Power Grid
+          </div>
+        </div>
+
+        <div class="prompt-bar-grid">
+          <!-- + Action Button -->
+          <button type="button" class="prompt-bar-action-btn" title="Quick actions" onclick="toggleQuickActions()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"></path></svg>
+          </button>
+
+          <!-- Textarea -->
+          <textarea id="chat-input" class="prompt-bar-textarea" rows="1" placeholder="Write a message, ask a question, or set an alarm..." onkeydown="handlePromptKey(event)" oninput="autoResizeTextarea(this)"></textarea>
+
+          <!-- Model Picker Pill -->
+          <button type="button" class="model-badge-btn" title="Active Brain Model">
+            <span class="model-dot-live"></span>
+            <span id="model-pill-name">Llama 3.2 3B</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"></path></svg>
+          </button>
+
+          <!-- Audio Chime Test Button -->
+          <button type="button" class="prompt-bar-action-btn" title="Play audio chime test" onclick="testChime()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"></path></svg>
+          </button>
+
+          <!-- Send Action Button -->
+          <button type="button" id="send-btn" class="prompt-bar-action-btn send-action" title="Send message" onclick="submitPrompt()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1058,10 +1353,55 @@
     });
   }
 
+  function toggleQuickActions() {
+    const menu = document.getElementById('quick-actions-menu');
+    menu.classList.toggle('show');
+  }
+
+  function insertPrompt(text) {
+    const inp = document.getElementById('chat-input');
+    inp.value = text;
+    document.getElementById('quick-actions-menu').classList.remove('show');
+    inp.focus();
+    autoResizeTextarea(inp);
+  }
+
+  function handlePromptKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submitPrompt();
+    }
+  }
+
+  function autoResizeTextarea(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  function toggleThinking(btn) {
+    const chevron = btn.querySelector('.thinking-chevron');
+    const drawer = btn.nextElementSibling;
+    chevron.classList.toggle('open');
+    drawer.classList.toggle('open');
+  }
+
+  let lastUserQuery = '';
+
+  function copyText(encoded, btn) {
+    const text = decodeURIComponent(encoded);
+    navigator.clipboard.writeText(text).then(() => {
+      showToast("Copied to clipboard!");
+      const original = btn.innerHTML;
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+      setTimeout(() => btn.innerHTML = original, 1800);
+    });
+  }
+
   function triggerFollowUp(encoded) {
     const text = decodeURIComponent(encoded);
-    document.getElementById('chat-input').value = text;
-    document.querySelector('.prompt-bar-wrap button[type="submit"]').click();
+    const inp = document.getElementById('chat-input');
+    inp.value = text;
+    submitPrompt();
   }
 
   function getFollowUps(userMsg) {
@@ -1085,8 +1425,24 @@
     const msgEl = document.createElement('div');
     msgEl.className = 'chat-msg assistant';
 
-    let tagHtml = `<div style="margin-bottom:6px;"><span class="source-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"></circle></svg> ${sourceTag}</span></div>`;
-    msgEl.innerHTML = `${tagHtml}<span class="msg-content"></span><span class="streaming-cursor"></span>`;
+    // 1. Thinking State (Component 02 from beautifului.dev)
+    const thinkingHtml = `
+      <div class="thinking-container">
+        <button type="button" class="thinking-btn" onclick="toggleThinking(this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--ink-2)"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"></path></svg>
+          <span class="shimmer-text">Thinking Trace</span>
+          <svg class="thinking-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>
+        </button>
+        <div class="thinking-drawer">
+          <div class="trace-step"><span class="trace-dot"></span> Evaluated agent intent router (Timer, Identity, Memory)</div>
+          <div class="trace-step"><span class="trace-dot"></span> Injected household state and personal memories</div>
+          <div class="trace-step"><span class="trace-dot"></span> Routed to: <strong>${sourceTag}</strong></div>
+        </div>
+      </div>
+    `;
+
+    const tagHtml = `<div style="margin-bottom:6px;"><span class="source-chip"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"></circle></svg> ${sourceTag}</span></div>`;
+    msgEl.innerHTML = `${thinkingHtml}${tagHtml}<span class="msg-content"></span><span class="streaming-cursor"></span>`;
     container.appendChild(msgEl);
     container.scrollTop = container.scrollHeight;
 
@@ -1104,7 +1460,7 @@
         clearInterval(interval);
         cursorEl.remove();
 
-        // Render Action Icons (Copy, Retry, Thumbs from beautifului.dev)
+        // 2. Render Action Icons (Component 03: Copy, Retry, Feedback from beautifului.dev)
         const actionsRow = document.createElement('div');
         actionsRow.className = 'chat-actions-row ready';
         actionsRow.innerHTML = `
@@ -1123,7 +1479,7 @@
         `;
         msgEl.appendChild(actionsRow);
 
-        // Render Follow-up Prompts
+        // 3. Render Follow-up Prompts
         if (followUps && followUps.length > 0) {
           const followUpsEl = document.createElement('div');
           followUpsEl.className = 'follow-ups-container ready';
@@ -1139,18 +1495,17 @@
 
         container.scrollTop = container.scrollHeight;
       }
-    }, 40);
+    }, 38);
   }
 
   function retryLastQuery() {
     if (lastUserQuery) {
       document.getElementById('chat-input').value = lastUserQuery;
-      document.querySelector('.prompt-bar-wrap button[type="submit"]').click();
+      submitPrompt();
     }
   }
 
-  async function sendChatMessage(e) {
-    e.preventDefault();
+  async function submitPrompt() {
     const inp = document.getElementById('chat-input');
     const msg = inp.value.trim();
     if (!msg) return;
@@ -1159,23 +1514,69 @@
     const container = document.getElementById('chat-msgs');
     container.innerHTML += `<div class="chat-msg user">${msg}</div>`;
     inp.value = '';
+    inp.style.height = '28px';
     container.scrollTop = container.scrollHeight;
 
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({message: msg})
-    });
-    const data = await res.json();
-    const replyText = data.reply || 'No response received.';
-    const followUps = getFollowUps(msg);
-    const sourceTag = replyText.includes('Alarm set') || replyText.includes('Timer') ? 'Agent Tool: Timer' :
-                     (replyText.includes('address you as') ? 'Agent Tool: Identity' :
-                     (replyText.includes('remember') ? 'Agent Tool: Memory' : 'Local Brain: Llama 3.2 3B'));
+    // Show Loading State (Component 01 from beautifului.dev: 3x3 pixel grid + elapsed timer)
+    const loaderId = 'loader-' + Date.now();
+    const loaderEl = document.createElement('div');
+    loaderEl.id = loaderId;
+    loaderEl.className = 'chat-msg assistant';
+    loaderEl.innerHTML = `
+      <div class="loading-state-box">
+        <div class="pixel-grid">
+          <div class="pixel-dot"></div><div class="pixel-dot"></div><div class="pixel-dot"></div>
+          <div class="pixel-dot"></div><div class="pixel-dot"></div><div class="pixel-dot"></div>
+          <div class="pixel-dot"></div><div class="pixel-dot"></div><div class="pixel-dot"></div>
+        </div>
+        <span class="shimmer-text">Processing request...</span>
+        <span class="font-mono" style="font-size:11px; opacity:0.6;" id="${loaderId}-timer">0.0s</span>
+      </div>
+    `;
+    container.appendChild(loaderEl);
+    container.scrollTop = container.scrollHeight;
 
-    streamMessage(container, replyText, followUps, sourceTag);
-    loadStatus();
+    // Elapsed timer loop
+    const startTime = Date.now();
+    const elapsedInterval = setInterval(() => {
+      const el = document.getElementById(`${loaderId}-timer`);
+      if (el) {
+        el.innerText = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
+      }
+    }, 100);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: msg})
+      });
+      const data = await res.json();
+      clearInterval(elapsedInterval);
+      loaderEl.remove();
+
+      const replyText = data.reply || 'No response received.';
+      const followUps = getFollowUps(msg);
+      const sourceTag = replyText.includes('Alarm set') || replyText.includes('Timer') ? 'Agent Tool: Timer' :
+                       (replyText.includes('address you as') ? 'Agent Tool: Identity' :
+                       (replyText.includes('remember') ? 'Agent Tool: Memory' : 'Local Brain: Llama 3.2 3B'));
+
+      streamMessage(container, replyText, followUps, sourceTag);
+      loadStatus();
+    } catch (e) {
+      clearInterval(elapsedInterval);
+      loaderEl.remove();
+      container.innerHTML += `<div class="chat-msg assistant">Error communicating with assistant: ${e.message}</div>`;
+    }
   }
+
+  // Close quick actions on outside click
+  document.addEventListener('click', (e) => {
+    const popover = document.getElementById('quick-actions-menu');
+    if (popover && !e.target.closest('.prompt-bar-card')) {
+      popover.classList.remove('show');
+    }
+  });
 
   // Initial load
   loadStatus();
