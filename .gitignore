@@ -1,0 +1,29 @@
+# Python virtual environment
+.venv/
+env/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Large AI Model Binaries (downloaded via ./install.sh or ./download_models.sh)
+models/llm/*
+!models/llm/.gitkeep
+models/stt/*
+!models/stt/.gitkeep
+models/tts/*
+!models/tts/.gitkeep
+
+# Dynamic local runtime state (changes during use)
+data/chat_history.json
+data/state.json
+
+# Local hardware-specific configuration (keep config.json.example in repo)
+config.json
+
+# OS specific files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

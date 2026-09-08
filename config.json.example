@@ -1,0 +1,11 @@
+{
+  "user_name": "Timilehin",
+  "phone_ip": "192.168.1.150",
+  "presence_poll_interval_seconds": 5,
+  "presence_debounce_count": 2,
+  "greeting_text": "Welcome home, Timilehin. How was your day?",
+  "trigger_phrases": ["hello", "hey", "hi"],
+  "voice_name": "Samantha",
+  "listen_timeout_seconds": 7,
+  "phrase_time_limit_seconds": 5
+}
