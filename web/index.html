@@ -405,49 +405,63 @@
     table.data-table tr:last-child td { border-bottom: none; }
     table.data-table tr:hover td { background: var(--hover-2); }
 
-    /* Prompt Bar & Chat Box */
+    /* Natural Chat Layout (Removed card-in-a-card backgrounds) */
+    #tab-chat.section-card {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      max-width: 860px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
     .chat-window {
-      background: var(--inset);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-card);
-      height: 380px;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      min-height: 440px;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
-      margin-bottom: 16px;
+      overflow: visible;
+      margin-bottom: 20px;
     }
 
     .chat-messages {
       flex: 1;
-      padding: 16px;
+      padding: 8px 0;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 20px;
     }
 
     .chat-msg {
-      max-width: 80%;
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 13px;
-      line-height: 1.45;
+      font-size: 13.5px;
+      line-height: 1.55;
     }
 
     .chat-msg.user {
       align-self: flex-end;
       background: var(--accent);
       color: white;
-      border-bottom-right-radius: 4px;
+      padding: 10px 16px;
+      border-radius: 18px 18px 4px 18px;
+      max-width: 75%;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
     }
 
     .chat-msg.assistant {
       align-self: flex-start;
-      background: var(--surface);
+      background: transparent;
       color: var(--ink);
-      border: 1px solid var(--line);
-      border-bottom-left-radius: 4px;
-      box-shadow: var(--shadow-card);
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 6px 0 18px 0;
+      width: 100%;
+      max-width: 100%;
+      border-bottom: 1px solid var(--line-hairline);
     }
 
     /* Streaming text & Action Icons from beautifului.dev */
@@ -697,18 +711,16 @@
 
     /* 4. Beautiful UI Prompt Bar (Component 08) */
     .prompt-bar-card {
-      position: relative;
+      position: sticky;
+      bottom: 24px;
       background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 14px;
-      box-shadow: var(--shadow-card);
-      padding: 6px;
+      border-radius: 16px;
+      box-shadow: var(--shadow-card), 0 8px 32px rgba(0, 0, 0, 0.16);
+      padding: 8px 10px;
       transition: border-color 150ms ease, box-shadow 150ms ease;
-      margin-top: 8px;
-    }
-    .prompt-bar-card:focus-within {
-      border-color: var(--line-strong);
-      box-shadow: var(--shadow-card), 0 0 0 1px var(--line-strong);
+      margin-top: 16px;
+      z-index: 50;
     }
     .prompt-bar-grid {
       display: grid;
@@ -2340,13 +2352,6 @@
 
     <!-- 5. CHAT CONSOLE TAB -->
     <div id="tab-chat" class="section-card">
-      <div class="card-header">
-        <div>
-          <div class="card-title">Direct Agent Interaction</div>
-          <div class="card-subtitle">Test commands, memory updates, or conversation without voice</div>
-        </div>
-      </div>
-
       <!-- Tool Chips Bar (beautifului.dev) -->
       <div class="tool-chips-bar">
         <span class="tool-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path></svg> Timers & Alarms</span>
