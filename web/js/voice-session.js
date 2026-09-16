@@ -149,11 +149,11 @@
         const sorted = [...this.calibration].sort((a, b) => a - b);
         this.noiseFloor = sorted[Math.floor(sorted.length / 2)] || this.noiseFloor;
       }
-      // When assistant is speaking, use a much higher threshold and buffer requirement to prevent speaker acoustic feedback
+      // When assistant is speaking, require slightly higher threshold and 3 voiced buffers for instant barge-in
       const isSpeaking = Boolean(window.__isAssistantSpeaking);
       const threshold = isSpeaking
-        ? Math.max(0.065, this.noiseFloor * 5.5)
-        : Math.max(0.012, this.noiseFloor * 2.5);
+        ? Math.max(0.030, this.noiseFloor * 3.2)
+        : Math.max(0.012, this.noiseFloor * 2.2);
       const voiced = rms >= threshold;
 
       this.preRoll.push(frame);
@@ -166,8 +166,8 @@
       if (!this.capturing) {
         this.voicedBuffers = voiced ? this.voicedBuffers + 1 : 0;
         const speechAge = performance.now() - (window.__browserSpeechStartedAt || 0);
-        const canBargeIn = isSpeaking && speechAge > 800;
-        const requiredBuffers = isSpeaking ? 6 : 2;
+        const canBargeIn = isSpeaking && speechAge > 350;
+        const requiredBuffers = isSpeaking ? 3 : 2;
 
         if (this.voicedBuffers >= requiredBuffers && (!isSpeaking || canBargeIn)) {
           this._beginUtterance(Boolean(isSpeaking));
@@ -287,7 +287,16 @@
           }
         });
       } catch (error) {
-        this._unavailable(error.message);
+        console.error('[VoiceSession] Turn processing error:', error);
+        const replyLine = document.getElementById('live-reply-text');
+        if (replyLine) replyLine.textContent = `⚠️ Error: ${error.message}`;
+        if (typeof window.showSonner === 'function') {
+          window.showSonner('LLM / API Error', error.message);
+        }
+        this._setStatus(this.mode === 'live' ? 'LIVE LISTENING' : `WAITING FOR “${this._getAssistantName()}”`);
+        if (window.tarsController) {
+          window.tarsController.setState(this.mode === 'live' ? 'listening' : 'standby');
+        }
       } finally {
         this.processing = false;
         if (this.queuedFrames) {

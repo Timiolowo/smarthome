@@ -168,8 +168,11 @@ async function loadStatus() {
       }
     }
 
-    // Timers & Dossier
+    // Timers, Reminders & Dossier
     renderActiveTimers(data.active_timers_list || []);
+    if (typeof renderActiveReminders === 'function') {
+      renderActiveReminders(data.active_reminders_list || []);
+    }
     renderUserProfile(data.memory || {});
     renderAboutAI(data.assistant || {});
 

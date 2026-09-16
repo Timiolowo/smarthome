@@ -8,8 +8,9 @@ const PATH_TO_TAB = {
   '/voice': 'tab-livedisplay',
   '/home': 'tab-overview',
   '/chat': 'tab-chat',
-  '/settings': 'tab-config',
+  '/actions': 'tab-alarms',
   '/alarms': 'tab-alarms',
+  '/settings': 'tab-config',
   '/profile': 'tab-user-profile',
   '/ai': 'tab-about-ai',
 };
@@ -17,8 +18,8 @@ const TAB_TO_PATH = {
   'tab-livedisplay': '/voice',
   'tab-overview': '/home',
   'tab-chat': '/chat',
+  'tab-alarms': '/actions',
   'tab-config': '/settings',
-  'tab-alarms': '/alarms',
   'tab-user-profile': '/profile',
   'tab-about-ai': '/ai',
 };
@@ -30,6 +31,7 @@ function routeFromURL() {
     'tab-livedisplay': 'nav-btn-livedisplay',
     'tab-overview': 'nav-btn-home',
     'tab-chat': 'nav-btn-chat',
+    'tab-alarms': 'nav-btn-actions',
     'tab-config': 'nav-btn-config',
   };
   const btn = document.getElementById(btnMap[tabId] || '');

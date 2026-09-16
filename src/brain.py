@@ -179,9 +179,10 @@ class Brain:
                 assistant_turn["content"] = " ".join(accumulated).strip()
                 yield sentence
         except Exception as e:
-            print(f"[Brain] Stream inference error ({e}), falling back...")
+            err_msg = str(e)
+            print(f"[Brain] Stream inference error ({err_msg}), falling back...")
             if not accumulated:
-                fallback = "Sorry, I couldn't generate a response. Please try again."
+                fallback = err_msg if ("rate limit" in err_msg.lower() or "quota" in err_msg.lower() or "429" in err_msg) else f"Model error: {err_msg}"
                 assistant_turn["content"] = fallback
                 yield fallback
         finally:
@@ -234,10 +235,13 @@ class Brain:
             self.history.append({"role": "assistant", "content": reply})
             return reply
         except Exception as e:
-            print(f"[Brain] Inference error ({e}), falling back...")
+            err_msg = str(e)
+            print(f"[Brain] Inference error ({err_msg}), falling back...")
             if self.history and self.history[-1]["role"] == "user":
                 self.history.pop()  # Remove unanswered turn
-            return "Sorry, I couldn't generate a response. Please try again."
+            if "rate limit" in err_msg.lower() or "quota" in err_msg.lower() or "429" in err_msg:
+                return err_msg
+            return f"Model error: {err_msg}"
 
     def generate_response(self, user_text: str) -> str:
         """Single-turn wrapper that starts a fresh conversation."""

@@ -205,6 +205,8 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         except urllib.error.HTTPError as e:
             error_body = e.read().decode("utf-8", errors="replace")
             print(f"[{self.name}] API HTTP error {e.code}: {error_body}")
+            if e.code == 429:
+                raise RuntimeError(f"{self.name} rate limit reached (HTTP 429). If on free tier, switch to 'llama-3.1-8b-instant' or Google Gemini for much higher limits.") from e
             raise RuntimeError(f"{self.name} API error (HTTP {e.code})") from e
         except Exception as e:
             print(f"[{self.name}] Request failed: {e}")
@@ -260,6 +262,8 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         except urllib.error.HTTPError as e:
             error_body = e.read().decode("utf-8", errors="replace")
             print(f"[{self.name}] API HTTP error {e.code}: {error_body}")
+            if e.code == 429:
+                raise RuntimeError(f"{self.name} rate limit reached (HTTP 429). If on free tier, switch to 'llama-3.1-8b-instant' or Google Gemini for higher limits.") from e
             raise RuntimeError(f"{self.name} API error (HTTP {e.code})") from e
         except Exception as e:
             print(f"[{self.name}] Stream request failed: {e}")
@@ -399,6 +403,10 @@ class GeminiProvider(BaseLLMProvider):
         except urllib.error.HTTPError as e:
             error_body = e.read().decode("utf-8", errors="replace")
             print(f"[Gemini] Model {self.model} returned HTTP {e.code}: {error_body}")
+            if e.code == 429:
+                retry_match = re.search(r'retry in ([0-9.]+\s*s?)', error_body, re.I)
+                delay_str = f" in {retry_match.group(1)}" if retry_match else " in a few seconds"
+                raise RuntimeError(f"Rate limit exceeded for Gemini ({self.model}). Please retry{delay_str}.") from e
             raise RuntimeError(f"Gemini API error (HTTP {e.code})") from e
         except Exception as e:
             print(f"[Gemini] Request with {self.model} failed: {e}")
@@ -467,6 +475,14 @@ class GeminiProvider(BaseLLMProvider):
                                         yield text
                         except json.JSONDecodeError:
                             continue
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode("utf-8", errors="replace")
+            print(f"[Gemini] Stream HTTP {e.code}: {error_body}")
+            if e.code == 429:
+                retry_match = re.search(r'retry in ([0-9.]+\s*s?)', error_body, re.I)
+                delay_str = f" in {retry_match.group(1)}" if retry_match else " in a few seconds"
+                raise RuntimeError(f"Rate limit exceeded for Gemini ({self.model}). Please retry{delay_str}.") from e
+            raise RuntimeError(f"Gemini API error (HTTP {e.code})") from e
         except Exception:
             # Fallback to single-turn chat if streaming endpoint encounters any issues
             if not (cancel_event and cancel_event.is_set()):

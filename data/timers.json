@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "id": "timer_1789576229_0",
+    "label": "timer",
+    "display_time": "10 minutes",
+    "total_seconds": 600.0,
+    "end_timestamp": 1789576229.3499572,
+    "created_at": "2026-09-16T17:20:29.349958"
+  }
+]

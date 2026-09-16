@@ -83,6 +83,7 @@ def get_system_status():
     }
 
     active_timers = tools.get_active_timers()
+    active_reminders = tools.get_active_reminders()
     assistant_runtime = state.get("assistant_runtime", {
         "state": "IDLE",
         "last_heard": "",
@@ -107,6 +108,8 @@ def get_system_status():
         },
         "active_timers": len(active_timers),
         "active_timers_list": active_timers,
+        "active_reminders": len(active_reminders),
+        "active_reminders_list": active_reminders,
         "assistant_runtime": assistant_runtime,
         "ui": state.get("ui", {
             "theme": "midnight",
@@ -214,12 +217,15 @@ class AssistantRequestHandler(BaseHTTPRequestHandler):
                 self._send_file(tv_file, "text/html")
             else:
                 self._send_file(os.path.join(WEB_DIR, "index.html"), "text/html")
-        elif path in ("/voice", "/home", "/chat", "/settings", "/alarms", "/profile", "/ai"):
+        elif path in ("/voice", "/home", "/chat", "/settings", "/actions", "/alarms", "/profile", "/ai"):
             # SPA client-side routes — serve index.html, JS reads the path
             index_file = os.path.join(WEB_DIR, "index.html")
             self._send_file(index_file, "text/html")
         elif path == "/api/status":
             self._send_json(get_system_status())
+        elif path == "/api/reminders":
+            rems = tools.get_active_reminders()
+            self._send_json({"ok": True, "reminders": rems, "count": len(rems)})
         elif path == "/api/setup/status":
             cfg = {}
             if os.path.exists(CONFIG_PATH):
@@ -554,6 +560,26 @@ class AssistantRequestHandler(BaseHTTPRequestHandler):
             from src.action_guards import action_guards
             res = action_guards.pop_and_undo()
             self._send_json(res, status=200 if res.get("ok") else 400)
+        elif path == "/api/reminders/create":
+            raw_text = body.get("text") or body.get("task", "")
+            if not raw_text.lower().startswith("remind"):
+                raw_text = f"remind me {raw_text}"
+            res = tools.parse_and_set_reminder(raw_text)
+            if res:
+                self._send_json({"ok": True, "reply": res, "reminders": tools.get_active_reminders()})
+            else:
+                self._send_json({"ok": False, "error": "Could not parse reminder schedule. Try 'remind me in 10 minutes to call mom' or 'remind me tomorrow at 9am to check email'."}, status=400)
+        elif path == "/api/reminders/cancel":
+            if body.get("all"):
+                cnt = tools.cancel_all_reminders()
+                self._send_json({"ok": True, "cancelled": cnt, "reminders": []})
+            else:
+                rem_id = body.get("id", "")
+                if rem_id:
+                    ok = tools.cancel_reminder(rem_id)
+                    self._send_json({"ok": ok, "id": rem_id, "reminders": tools.get_active_reminders()})
+                else:
+                    self._send_json({"error": "Missing reminder id"}, status=400)
         elif path == "/api/theme":
             theme = body.get("theme", "midnight")
             reply = tools.set_ui_theme(theme)

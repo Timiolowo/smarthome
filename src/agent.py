@@ -95,7 +95,7 @@ class HomeAgent:
         # TOOL 2: Reminders Engine (Scheduling, Query, Cancellation)
         # e.g. "Remind me in 30 minutes to call mom", "Remind me tomorrow at 9 am to buy coffee"
         # -------------------------------------------------------------
-        if re.search(r"\b(what are my reminders|any reminders|check reminders|show reminders|upcoming reminders|list reminders)\b", cleaned):
+        if re.search(r"\b(?:(?:do|are|is)\s+(?:i|there)\s+(?:have\s+)?(?:any\s+)?reminders?|what\s+(?:are\s+)?(?:my\s+)?reminders?|any\s+reminders?|check\s+(?:my\s+)?reminders?|show\s+(?:my\s+)?reminders?|list\s+(?:my\s+)?reminders?|upcoming\s+reminders?|reminders?\s+(?:set|scheduled|active|pending))\b", cleaned):
             return tools.get_active_reminders_summary()
 
         if re.search(r"\b(cancel (?:all |the |my )?reminders?|clear (?:all |the |my )?reminders?|stop (?:all |the |my )?reminders?)\b", cleaned):

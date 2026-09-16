@@ -12,14 +12,19 @@ let terminalVoiceMode = 'wake';
 window.__isAssistantSpeaking = false;
 window.__activeUtterance = null;
 
-// Safari WebKit Audio Unlocker
+// Safari & Chrome WebKit Audio Unlocker
 function primeSafariAudioContext() {
   if (window.__speechContextPrimed) return;
   window.__speechContextPrimed = true;
+  try {
+    const silent = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA");
+    silent.volume = 0.01;
+    silent.play().catch(() => {});
+  } catch (e) {}
 }
-document.addEventListener('click', primeSafariAudioContext, { passive: true });
-document.addEventListener('touchstart', primeSafariAudioContext, { passive: true });
-document.addEventListener('keydown', primeSafariAudioContext, { passive: true });
+document.addEventListener('click', primeSafariAudioContext, { passive: true, once: true });
+document.addEventListener('touchstart', primeSafariAudioContext, { passive: true, once: true });
+document.addEventListener('keydown', primeSafariAudioContext, { passive: true, once: true });
 
 function toggleVoiceOutput() {
   isVoiceOutputEnabled = !isVoiceOutputEnabled;
@@ -293,87 +298,28 @@ function speakWithBrowserVoice(rawText, onFinish) {
       return;
     }
 
-    // Default & Siri Mode: Stream pure high-fidelity Siri Voice from backend /api/tts
-    // Chunk into sentences for instant sub-second first-audio playback + background prefetching
-    const controller = new AbortController();
-    activeTtsAbortController = controller;
+    // Direct Native Audio Streaming from /api/tts (Siri Voice 4 Enhanced)
+    const ttsUrl = `/api/tts?text=${encodeURIComponent(text)}&t=${Date.now()}`;
+    const audio = new Audio(ttsUrl);
+    activeAudioElement = audio;
 
-    // Split text into natural sentence fragments
-    const rawSentences = text.match(/[^.!?]+[.!?]+["']?|[^.!?]+$/g) || [text];
-    const sentences = rawSentences.map(s => s.trim()).filter(Boolean);
-
-    if (!sentences.length) {
+    audio.onended = () => cleanup();
+    audio.onerror = (e) => {
+      console.warn("TTS Audio playback error:", e);
       cleanup();
-      return;
+    };
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => {
+        if (err.name === 'AbortError') return;
+        console.warn("Audio play rejected:", err);
+        cleanup();
+      });
     }
 
-    let currentIndex = 0;
-    const blobCache = new Map();
-
-    const fetchSentenceBlob = async (idx) => {
-      if (idx >= sentences.length || finished) return null;
-      if (blobCache.has(idx)) return blobCache.get(idx);
-      try {
-        const sText = sentences[idx];
-        const res = await fetch(`/api/tts?text=${encodeURIComponent(sText)}`, { signal: controller.signal });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const blob = await res.blob();
-        blobCache.set(idx, blob);
-        return blob;
-      } catch (err) {
-        return null;
-      }
-    };
-
-    const playNext = async () => {
-      if (finished || !window.__isAssistantSpeaking || currentIndex >= sentences.length) {
-        cleanup();
-        return;
-      }
-      const idx = currentIndex++;
-
-      // Immediately kick off background prefetch for the next sentence
-      if (currentIndex < sentences.length) {
-        fetchSentenceBlob(currentIndex).catch(() => {});
-      }
-
-      let blob = blobCache.get(idx);
-      if (!blob) {
-        blob = await fetchSentenceBlob(idx);
-      }
-
-      if (finished || !window.__isAssistantSpeaking || !blob) {
-        cleanup();
-        return;
-      }
-
-      const blobUrl = URL.createObjectURL(blob);
-      activeAudioBlobUrl = blobUrl;
-      const audio = new Audio(blobUrl);
-      activeAudioElement = audio;
-
-      audio.onended = () => {
-        try { URL.revokeObjectURL(blobUrl); } catch(e) {}
-        playNext();
-      };
-      audio.onerror = () => {
-        try { URL.revokeObjectURL(blobUrl); } catch(e) {}
-        playNext();
-      };
-
-      try {
-        await audio.play();
-      } catch (err) {
-        if (err.name === 'AbortError') return;
-        playNext();
-      }
-    };
-
-    // Kick off playback of first sentence immediately!
-    playNext();
-
-    // Safety timeout
-    const estimatedDurationMs = Math.max(5000, (text.length / 10) * 1000);
+    // Safety timeout based on text length
+    const estimatedDurationMs = Math.max(5000, (text.length / 8) * 1000);
     setTimeout(() => {
       if (window.__isAssistantSpeaking && !finished) {
         cleanup();

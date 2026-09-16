@@ -38,7 +38,7 @@ function handleLLMProviderChange() {
   const defaultModels = {
     gemini: 'gemini-2.5-flash',
     openai: 'gpt-4o-mini',
-    groq: 'llama-3.3-70b-versatile',
+    groq: 'llama-3.1-8b-instant',
     deepseek: 'deepseek-chat',
     custom: 'default'
   };
@@ -46,7 +46,7 @@ function handleLLMProviderChange() {
   const placeholders = {
     gemini: 'e.g. gemini-2.5-flash, gemini-2.5-pro',
     openai: 'e.g. gpt-4o, gpt-4o-mini, o3-mini',
-    groq: 'e.g. llama-3.3-70b-versatile',
+    groq: 'e.g. llama-3.1-8b-instant (High limits), llama-3.3-70b-versatile',
     deepseek: 'e.g. deepseek-chat, deepseek-reasoner',
     custom: 'e.g. meta-llama/llama-3.3-70b, mistral, etc.'
   };

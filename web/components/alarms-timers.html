@@ -1,44 +1,99 @@
 <!-- ==========================================================================
-     ALARMS & TIMERS COMPONENT
-     Zero Emojis — 100% Inline Lucide SVGs
+     ACTIONS, REMINDERS & ALARMS COMPONENT
+     Aceternity Bento Grid + shadcn/ui Cards + 100% Inline Lucide SVGs
      ========================================================================== -->
 <section id="tab-alarms" class="section-card">
   <div class="bento-grid">
     
-    <!-- Set Quick Timers (6 cols) -->
-    <div class="bento-col-6 card card-spotlight">
-      <div class="card-header">
-        <div class="card-title-group">
-          <div class="card-title">
-            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>Quick Countdown Timer</span>
-          </div>
-          <div class="card-description">Set a fast timer in seconds or presets.</div>
-        </div>
-      </div>
-      <div class="card-content">
-        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('alarm-seconds').value=300; setTimerSeconds();">5 Minutes</button>
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('alarm-seconds').value=600; setTimerSeconds();">10 Minutes</button>
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('alarm-seconds').value=900; setTimerSeconds();">15 Minutes</button>
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('alarm-seconds').value=1800; setTimerSeconds();">30 Minutes</button>
-        </div>
-        <div style="display:flex; gap:0.5rem;">
-          <input type="number" id="alarm-seconds" class="btn btn-outline" style="flex:1; text-align:left;" placeholder="Seconds (e.g. 45)"/>
-          <button class="btn btn-primary" onclick="setTimerSeconds()">Start Timer</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Set Clock Alarm (6 cols) -->
+    <!-- 1. Scheduled Reminders List (6 cols) -->
     <div class="bento-col-6 card card-spotlight">
       <div class="card-header">
         <div class="card-title-group">
           <div class="card-title">
             <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span>Scheduled Reminders</span>
+            <span id="active-reminders-count-pill" class="badge badge-primary" style="margin-left:0.5rem;">0 Scheduled</span>
+          </div>
+          <div class="card-description">Voice & scheduled task announcements created with assistant.</div>
+        </div>
+        <button id="cancel-all-reminders-btn" class="btn btn-destructive btn-sm" style="display:none;" onclick="cancelAllReminders()">Clear All</button>
+      </div>
+      <div class="card-content">
+        <!-- Quick Add Reminder Input -->
+        <form onsubmit="event.preventDefault(); createManualReminder();" style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+          <input type="text" id="input-new-reminder" class="btn btn-outline" style="flex:1; text-align:left; font-size:0.85rem;" placeholder="e.g. Call mom tomorrow at 5pm, or buy coffee in 20m..." autocomplete="off"/>
+          <button type="submit" class="btn btn-primary btn-sm" style="white-space:nowrap;">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Add</span>
+          </button>
+        </form>
+
+        <!-- Active Reminders Container -->
+        <div id="alarms-active-reminders-container">
+          <div style="color:hsl(var(--muted-foreground)); font-size:0.85rem; padding:1rem 0; text-align:center;">
+            No upcoming reminders scheduled. Say <em>"Remind me in 10 minutes to..."</em> or use the box above.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Active Countdowns List (6 cols) -->
+    <div class="bento-col-6 card card-spotlight">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-title">
+            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Active Countdowns & Timers</span>
+            <span id="active-timers-count-pill" class="badge badge-warning" style="margin-left:0.5rem;">0 Active</span>
+          </div>
+          <div class="card-description">Real-time relative countdowns and clock alarms running on server.</div>
+        </div>
+        <button id="cancel-all-timers-btn" class="btn btn-destructive btn-sm" style="display:none;" onclick="cancelAllTimers()">Cancel All</button>
+      </div>
+      <div class="card-content">
+        <div id="alarms-active-timers-container">
+          <div style="color:hsl(var(--muted-foreground)); font-size:0.85rem; padding:1rem 0; text-align:center;">
+            No timers active. Start one below or ask <em>"Set a timer for 10 minutes"</em>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Set Quick Timers (6 cols) -->
+    <div class="bento-col-6 card card-spotlight">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-title">
+            <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Quick Countdown Presets</span>
+          </div>
+          <div class="card-description">Start a countdown immediately in seconds or presets.</div>
+        </div>
+      </div>
+      <div class="card-content">
+        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('alarm-seconds').value=60; setTimerSeconds();">1 Min</button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('alarm-seconds').value=300; setTimerSeconds();">5 Min</button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('alarm-seconds').value=600; setTimerSeconds();">10 Min</button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('alarm-seconds').value=900; setTimerSeconds();">15 Min</button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('alarm-seconds').value=1800; setTimerSeconds();">30 Min</button>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <input type="number" id="alarm-seconds" class="btn btn-outline" style="flex:1; text-align:left;" placeholder="Custom Seconds (e.g. 45)"/>
+          <button class="btn btn-primary" onclick="setTimerSeconds()">Start Timer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Set Clock Alarm & Audio Test (6 cols) -->
+    <div class="bento-col-6 card card-spotlight">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-title">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
             <span>Scheduled Clock Alarm</span>
           </div>
-          <div class="card-description">Trigger alarm at an exact scheduled time.</div>
+          <div class="card-description">Trigger an audible alarm chime at an exact clock time.</div>
         </div>
       </div>
       <div class="card-content">
@@ -50,23 +105,6 @@
           <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
           <span>Test Audio Chime</span>
         </button>
-      </div>
-    </div>
-
-    <!-- Active Timers List (12 cols) -->
-    <div class="bento-col-12 card card-spotlight">
-      <div class="card-header">
-        <div class="card-title">
-          <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span>Active Countdowns & Alarms</span>
-          <span id="active-timers-count-pill" class="badge badge-warning" style="margin-left:0.5rem;">0 Active</span>
-        </div>
-        <button id="cancel-all-timers-btn" class="btn btn-destructive btn-sm" style="display:none;" onclick="cancelAllTimers()">Cancel All</button>
-      </div>
-      <div class="card-content">
-        <div id="alarms-active-timers-container">
-          <!-- Rendered dynamically -->
-        </div>
       </div>
     </div>
 

@@ -303,6 +303,8 @@ class MemoryManager:
             t_details = [f"{t.get('label', 'timer')}: {int(t.get('remaining_seconds', 0))}s left" for t in active_timers]
             timer_info += f" ({', '.join(t_details)})"
 
+        active_reminders_summary = tools.get_active_reminders_summary()
+
         from src.device_inventory import device_inventory
         connected_devs = [d["name"] for d in device_inventory.list_devices() if d.get("connected")]
         connected_str = ", ".join(connected_devs) if connected_devs else "None (Smart lights, AC, and TV are NOT connected)"
@@ -317,10 +319,11 @@ class MemoryManager:
         grounding_rules = (
             f"=== STRICT PHYSICAL REALITY CONSTRAINTS (NEVER VIOLATE) ===\n"
             f"- NO PHYSICAL BODY OR HANDS: You are ONLY software running on a computer. You have no physical body, hands, or kitchen tools.\n"
-            f"- NEVER CLAIM PHYSICAL ACTIONS OR COOKING: You CANNOT cook, bake, make beans cake, brew tea/coffee, toast bread, clean, or fetch items. NEVER claim you prepared food, have food ready in the kitchen, or ask how they want food served.\n"
-            f"- GROUNDED HARDWARE ONLY: Connected devices: [{connected_str}]. Smart lights, AC, and TV are NOT connected. NEVER claim you turned them on/off or that they are running.\n"
-            f"- FACTS ARE FOR REFERENCE ONLY: Learned facts (like favorite foods or item locations) are purely for answering questions when asked, NEVER for pretending you physically handled or prepared them.\n"
-            f"- NEVER FABRICATE SHUTDOWN OR RESTART TIMESTAMPS: System sleep and shutdowns are executed strictly via system tools. NEVER roleplay that you are shutting down or coming back at a made-up time.\n"
+            f"- NEVER CLAIM PHYSICAL ACTIONS OR COOKING: You CANNOT cook, bake, make beans cake, light candles, play music, set up cozy/romantic rooms, brew tea/coffee, clean, or fetch items. NEVER pretend you arranged physical items or rooms.\n"
+            f"- GROUNDED HARDWARE ONLY: Connected devices: [{connected_str}]. Smart lights, AC, and TV are NOT connected. NEVER claim you turned them on/off or adjusted physical room settings.\n"
+            f"- REMINDERS & TIMERS ARE GROUNDED: Only reference reminders and timers explicitly listed above in LIVE CONTEXT. If it says no upcoming reminders, state that clearly and NEVER invent or assume past/future reminders (like picking up groceries).\n"
+            f"- FACTS ARE FOR REFERENCE ONLY: Learned facts are purely for answering questions when asked, NEVER for pretending you physically handled them.\n"
+            f"- NEVER FABRICATE SHUTDOWN OR RESTART TIMESTAMPS: System sleep and shutdowns are executed strictly via system tools.\n"
             f"- NON-ROMANTIC COMPANION: No pet names (sweetie, honey, babe). Home sanctuary: No office or corporate work talk."
         )
 
@@ -334,6 +337,7 @@ class MemoryManager:
             f"{weather_line}"
             f"- Resident Presence: {user_name} is currently {presence_state}\n"
             f"- Active Timers: {timer_info}\n"
+            f"- Scheduled Reminders: {active_reminders_summary}\n"
             f"- Power Grid: {'Available (Normal)' if power.get('grid_available', True) else 'OUT (Inverter Battery)'}\n"
             f"- Connected Appliances: {connected_str}\n"
             f"- Active Model: {active_provider} ({active_model}) | Voice: {voice_name}\n"

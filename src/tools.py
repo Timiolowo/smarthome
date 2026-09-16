@@ -428,12 +428,18 @@ class AgentTools:
     def parse_and_set_reminder(self, user_text: str) -> Optional[str]:
         """Parses natural language reminder requests and schedules them."""
         import datetime as dt_mod
-        cleaned = user_text.strip()
+        raw = user_text.strip()
         now = datetime.now()
 
-        # 1. Relative duration: "remind me in two minutes to call mom" / "remind me to call mom in 20 minutes"
+        # Clean decimal timestamps from speech recognition (e.g., "5.0 at the pm", "5.0 pm" -> "5:00 pm")
+        cleaned = re.sub(r'(\d{1,2})\.0\s*(?:at\s+the\s+|at\s+)?(am|pm)', r'\1:00 \2', raw, flags=re.I)
+        cleaned = re.sub(r'(\d{1,2})\.00\s*(am|pm)', r'\1:00 \2', cleaned, flags=re.I)
+        # Strip leading trigger/assistant wrapper phrases
+        cleaned = re.sub(r'^(?:(?:hey|hi|hello|nova|tars|assistant)\s*[,.]*\s*)+', '', cleaned, flags=re.I)
+
+        # 1. Relative duration: e.g. "remind me in 15 minutes to call mom" or "remind me to call mom in 15 minutes"
         rel_match = re.search(
-            r"remind\s+(?:me\s+)?(?:in\s+(.+?)\s+(?:to|about)\s+(.+)|to\s+(.+?)\s+in\s+(.+))",
+            r"(?:remind\s+(?:me\s+)?|set\s+a\s+reminder\s+(?:for|to|about)?\s*|schedule\s+a\s+reminder\s+(?:for|to|about)?\s*)(?:in\s+(.+?)\s+(?:to|about)\s+(.+)|to\s+(.+?)\s+in\s+(.+))",
             cleaned,
             re.IGNORECASE,
         )
@@ -454,26 +460,15 @@ class AgentTools:
                 unit_display = f"{int(secs)} seconds" if secs < 60 else (f"{int(mins)} minute" if mins == 1 else f"{mins} minutes")
                 return self._schedule_reminder(task=task, target_timestamp=target_dt.timestamp(), display_str=f"in {unit_display} ({disp_time})")
 
-        # 2. Specific clock time or day:
-        # e.g. "remind me at 7:30 pm to buy milk"
-        # e.g. "remind me tomorrow at 9 am to call doctor"
-        # e.g. "remind me on Friday at 4 pm to send email"
-        time_match = re.search(
-            r"remind\s+(?:me\s+)?(?:(?:on\s+([a-zA-Z]+|\d{1,2}(?:st|nd|rd|th)?(?:\s+[a-zA-Z]+)?)\s+)?(?:(today|tomorrow)\s+)?at\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm)?|\d{1,2}:\d{2})\s+(?:to|about)\s+(.+)|to\s+(.+?)\s+(?:(today|tomorrow)\s+)?at\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm)?|\d{1,2}:\d{2}))",
-            cleaned,
-            re.IGNORECASE,
-        )
-        if time_match:
-            if time_match.group(4):
-                day_str = time_match.group(1) or ""
-                rel_day = time_match.group(2) or ""
-                time_str = time_match.group(3).strip().upper()
-                task = time_match.group(4).strip()
-            else:
-                task = time_match.group(5).strip()
-                rel_day = time_match.group(6) or ""
-                day_str = ""
-                time_str = time_match.group(7).strip().upper()
+        # 2. Specific clock time and day (flexible order)
+        # Match time token e.g. "at 5pm", "at 5:00 pm", "5pm", "5:00 pm", "5 am", "17:00"
+        time_token_match = re.search(r'\b(?:at\s+)?(\d{1,2}(?::\d{2})?\s*(?:am|pm)|\d{1,2}:\d{2})\b', cleaned, re.I)
+        # Match day token e.g. "tomorrow", "today", "on Friday", "Friday"
+        day_token_match = re.search(r'\b(?:on\s+)?(today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b', cleaned, re.I)
+
+        if time_token_match or day_token_match:
+            time_str = time_token_match.group(1).strip().upper() if time_token_match else "9:00 AM"
+            day_str = day_token_match.group(1).lower() if day_token_match else ""
 
             target_time = None
             for fmt in ("%I:%M %p", "%I:%M%p", "%I %p", "%I%p", "%H:%M"):
@@ -484,17 +479,19 @@ class AgentTools:
                     continue
 
             if not target_time:
-                return f"I couldn't understand the time '{time_str}' for your reminder."
+                try:
+                    target_time = datetime.strptime(f"{time_str}:00", "%H:%M")
+                except Exception:
+                    target_time = datetime.strptime("9:00 AM", "%I:%M %p")
 
             target_dt = now.replace(hour=target_time.hour, minute=target_time.minute, second=0, microsecond=0)
 
-            if "tomorrow" in rel_day.lower():
+            if "tomorrow" in day_str:
                 target_dt += dt_mod.timedelta(days=1)
-            elif day_str:
+            elif day_str and day_str != "today":
                 days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-                day_lower = day_str.lower()
-                if day_lower in days_of_week:
-                    target_weekday = days_of_week.index(day_lower)
+                if day_str in days_of_week:
+                    target_weekday = days_of_week.index(day_str)
                     current_weekday = now.weekday()
                     days_ahead = (target_weekday - current_weekday) % 7
                     if days_ahead == 0 and target_dt <= now:
@@ -502,6 +499,16 @@ class AgentTools:
                     target_dt += dt_mod.timedelta(days=days_ahead)
             elif target_dt <= now:
                 target_dt += dt_mod.timedelta(days=1)
+
+            # Extract clean task description
+            task = cleaned
+            task = re.sub(r'\b(?:on\s+)?(today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b', ' ', task, flags=re.I)
+            task = re.sub(r'\b(?:at\s+)?(?:\d{1,2}(?::\d{2})?\s*(?:am|pm)|\d{1,2}:\d{2})\b', ' ', task, flags=re.I)
+            task = re.sub(r'^(?:(?:please\s+|can\s+you\s+|i\s+want\s+(?:you\s+)?to\s+|i\s+need\s+(?:you\s+)?to\s+|set\s+a\s+reminder\s+(?:for|to|about)?|schedule\s+a\s+reminder\s+(?:for|to|about)?|create\s+a\s+reminder\s+(?:for|to|about)?|add\s+a\s+reminder\s+(?:for|to|about)?|remind\s+me\s+(?:to|about)?|reminder\s+(?:for|to|about)?)\s*)+', '', task, flags=re.I)
+            task = re.sub(r'^(?:to|about|for|that)\s+', '', task.strip(), flags=re.I)
+            task = re.sub(r'\s+', ' ', task).strip()
+            if not task:
+                task = "scheduled reminder"
 
             display_dt = target_dt.strftime("%A, %b %d at %I:%M %p").replace(" 0", " ")
             return self._schedule_reminder(task=task, target_timestamp=target_dt.timestamp(), display_str=display_dt)
@@ -562,6 +569,21 @@ class AgentTools:
             return f"You have 1 upcoming reminder: {r.get('task')} on {r.get('display_str')}."
         items = [f"{r.get('task')} ({r.get('display_str')})" for r in active]
         return f"You have {len(active)} upcoming reminders: {', '.join(items)}."
+
+    def cancel_reminder(self, rem_id: str) -> bool:
+        """Cancels a specific reminder by its ID."""
+        for r in self.reminder_records:
+            if r.get("id") == rem_id and not r.get("completed", False):
+                r["completed"] = True
+                if "timer_obj" in r and r["timer_obj"]:
+                    try:
+                        r["timer_obj"].cancel()
+                    except Exception:
+                        pass
+                self._save_reminders_to_disk()
+                self._log_event("reminder", f"Cancelled reminder '{r.get('task')}'")
+                return True
+        return False
 
     def cancel_all_reminders(self) -> int:
         """Cancels all active reminders."""

@@ -150,7 +150,7 @@ func speakText(_ text: String, voiceName: String?, outputPath: String?) {
             guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
                 return
             }
-            if pcmBuffer.frameLength == 0 {
+            if pcmBuffer.frameLength == 0 && fileOutput != nil {
                 delegate.isDone = true
                 return
             }
@@ -169,15 +169,18 @@ func speakText(_ text: String, voiceName: String?, outputPath: String?) {
                     return
                 }
             }
-            do {
-                try fileOutput?.write(from: pcmBuffer)
-            } catch {
-                fputs("Error writing audio: \(error)\n", stderr)
+            if pcmBuffer.frameLength > 0 {
+                do {
+                    try fileOutput?.write(from: pcmBuffer)
+                } catch {
+                    fputs("Error writing audio: \(error)\n", stderr)
+                }
             }
         }
         while !delegate.isDone {
             RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.005))
         }
+        fileOutput = nil // Flush and close file so headers are properly written
         fputs("[SiriSpeak] Saved: \(path)\n", stderr)
     } else {
         // Speak aloud
