@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartHome — Sweet Voice Tester Studio</title>
+  <link rel="stylesheet" href="/css/base.css"/>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #090d16;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+    }
+    .voice-tester-card {
+      width: 100%;
+      max-width: 720px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .header-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #60a5fa, #a855f7, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header-subtitle {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 24px;
+    }
+    .voice-group {
+      margin-bottom: 24px;
+    }
+    .voice-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .voice-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #f8fafc;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .voice-btn:hover {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: #818cf8;
+      transform: translateY(-2px);
+    }
+    .voice-btn.active {
+      background: rgba(168, 85, 247, 0.2);
+      border-color: #c084fc;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+    .voice-btn-name {
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .voice-btn-tag {
+      font-size: 11px;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .custom-input-box {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .custom-textarea {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 60px;
+    }
+    .controls-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .play-btn {
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .play-btn:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+    .stop-btn {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      font-weight: 600;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .stop-btn:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+    .status-banner {
+      margin-top: 16px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="voice-tester-card">
+    <div class="header-title">Sweet Natural Voice Tester</div>
+    <div class="header-subtitle">Click any voice card below to hear how it sounds in real time!</div>
+
+    <!-- 1. Top Recommended Sweet Voices -->
+    <div class="voice-group">
+      <h3 style="font-size: 14px; color: #cbd5e1; margin-bottom: 8px; font-weight: 600;">✨ Top Sweet Natural Voices:</h3>
+      <div class="voice-list" id="curated-voices-list">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- 2. All Available Browser Voices -->
+    <div class="voice-group">
+      <h3 style="font-size: 14px; color: #cbd5e1; margin-bottom: 8px; font-weight: 600;">🎙️ All Available English Voices on this Device:</h3>
+      <select id="all-voices-select" style="width: 100%; background: #111827; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 10px; border-radius: 8px;">
+        <option value="">Loading voices...</option>
+      </select>
+    </div>
+
+    <!-- 3. Custom Speech Text Box -->
+    <div class="custom-input-box">
+      <label style="font-size: 13px; color: #94a3b8; font-weight: 600;">Spoken Test Phrase:</label>
+      <textarea id="test-text" class="custom-textarea">Welcome home, Timilehin. I'm Nova, your personal assistant. How was your day?</textarea>
+      
+      <div class="controls-row">
+        <button class="play-btn" id="btn-play">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Speak Phrase Aloud
+        </button>
+        <button class="stop-btn" id="btn-stop">Stop</button>
+        <button class="play-btn" id="btn-save-as-default" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
+          Set as Assistant Voice
+        </button>
+      </div>
+
+      <div class="status-banner" id="status-box">
+        Select a voice and click Speak Phrase to test.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let synth = window.speechSynthesis;
+    let voices = [];
+    let selectedVoice = null;
+
+    const samplePhrases = [
+      "Welcome home, Timilehin. I'm Nova, your personal assistant. How was your day?",
+      "Sure thing Timilehin! I've set your living room lights to chill relax mode.",
+      "Good morning Timilehin! The weather today in Lagos is 28 degrees and partly cloudy."
+    ];
+
+    function loadVoices() {
+      voices = synth.getVoices() || [];
+      const select = document.getElementById("all-voices-select");
+      const curatedList = document.getElementById("curated-voices-list");
+      
+      if (!voices.length) return;
+
+      select.innerHTML = "";
+      curatedList.innerHTML = "";
+
+      const enVoices = voices.filter(v => v.lang.startsWith("en"));
+      
+      // Top Curated natural voice candidates
+      const curatedCandidates = [
+        { name: "Samantha (Enhanced)", tag: "Ultra-Sweet Natural" },
+        { name: "Siri", tag: "Apple Natural Siri" },
+        { name: "Ava (Premium)", tag: "Smooth & Modern" },
+        { name: "Ava", tag: "Smooth & Modern" },
+        { name: "Zoe (Premium)", tag: "Warm & Expressive" },
+        { name: "Zoe", tag: "Warm & Expressive" },
+        { name: "Daniel (Enhanced)", tag: "Warm British Male" },
+        { name: "Samantha", tag: "Classic Samantha" },
+        { name: "Google US English", tag: "Google Neural" }
+      ];
+
+      const renderedNames = new Set();
+
+      // 0. Native Backend Siri Voice 4 (Enhanced)
+      const siriBtn = document.createElement("button");
+      siriBtn.className = "voice-btn active";
+      siriBtn.style.border = "1px solid #a855f7";
+      siriBtn.style.background = "rgba(168, 85, 247, 0.15)";
+      siriBtn.innerHTML = `
+        <span class="voice-btn-name">🔊 Siri Voice 4 (Enhanced)</span>
+        <span class="voice-btn-tag" style="background:#a855f7;color:#fff;">Apple Neural TTS</span>
+      `;
+      siriBtn.onclick = () => {
+        const text = document.getElementById("test-text").value.trim() || samplePhrases[0];
+        document.getElementById("status-box").textContent = `🔊 Streaming Native Siri Voice 4 (Enhanced)...`;
+        const audio = new Audio(`/api/tts?text=${encodeURIComponent(text)}`);
+        audio.play();
+        audio.onended = () => {
+          document.getElementById("status-box").textContent = `✓ Finished playing Siri Voice 4 (Enhanced)`;
+        };
+        audio.onerror = () => {
+          document.getElementById("status-box").textContent = `Error playing audio from /api/tts`;
+        };
+      };
+      curatedList.appendChild(siriBtn);
+
+      curatedCandidates.forEach(cand => {
+        const found = voices.find(v => v.name.toLowerCase().includes(cand.name.toLowerCase()) && v.lang.startsWith("en"));
+        if (found && !renderedNames.has(found.name)) {
+          renderedNames.add(found.name);
+          const btn = document.createElement("button");
+          btn.className = "voice-btn";
+          btn.innerHTML = `
+            <span class="voice-btn-name">${found.name}</span>
+            <span class="voice-btn-tag">${cand.tag}</span>
+          `;
+          btn.onclick = () => {
+            selectVoice(found);
+            speakCurrent();
+          };
+          curatedList.appendChild(btn);
+        }
+      });
+
+      // Populate full dropdown
+      enVoices.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v.name;
+        opt.textContent = `${v.name} (${v.lang})`;
+        select.appendChild(opt);
+      });
+
+      if (!selectedVoice && enVoices.length) {
+        selectVoice(enVoices[0]);
+      }
+    }
+
+    function selectVoice(v) {
+      selectedVoice = v;
+      const select = document.getElementById("all-voices-select");
+      if (select) select.value = v.name;
+
+      document.querySelectorAll(".voice-btn").forEach(b => {
+        const title = b.querySelector(".voice-btn-name")?.textContent;
+        if (title === v.name) {
+          b.classList.add("active");
+        } else {
+          b.classList.remove("active");
+        }
+      });
+
+      document.getElementById("status-box").textContent = `Selected voice: ${v.name} (${v.lang})`;
+    }
+
+    function speakCurrent() {
+      if (!selectedVoice) return;
+      synth.cancel();
+
+      const text = document.getElementById("test-text").value.trim() || samplePhrases[0];
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.voice = selectedVoice;
+      utter.rate = 1.0;
+      utter.pitch = 1.0;
+
+      utter.onstart = () => {
+        document.getElementById("status-box").textContent = `🔊 Speaking with: "${selectedVoice.name}"...`;
+      };
+      utter.onend = () => {
+        document.getElementById("status-box").textContent = `✓ Finished playing voice: "${selectedVoice.name}"`;
+      };
+
+      synth.speak(utter);
+    }
+
+    document.getElementById("btn-play").addEventListener("click", speakCurrent);
+    document.getElementById("btn-stop").addEventListener("click", () => {
+      synth.cancel();
+      document.getElementById("status-box").textContent = "Playback stopped.";
+    });
+
+    document.getElementById("all-voices-select").addEventListener("change", (e) => {
+      const v = voices.find(vox => vox.name === e.target.value);
+      if (v) {
+        selectVoice(v);
+        speakCurrent();
+      }
+    });
+
+    document.getElementById("btn-save-as-default").addEventListener("click", async () => {
+      if (!selectedVoice) return;
+      try {
+        const res = await fetch("/api/config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ voice_name: selectedVoice.name })
+        });
+        localStorage.setItem("smarthome_selected_voice", selectedVoice.name);
+        alert(`Saved "${selectedVoice.name}" as your active Assistant Voice!`);
+      } catch (e) {
+        localStorage.setItem("smarthome_selected_voice", selectedVoice.name);
+        alert(`Saved "${selectedVoice.name}" locally in your browser!`);
+      }
+    });
+
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
+    loadVoices();
+  </script>
+</body>
+</html>

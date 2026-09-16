@@ -149,7 +149,11 @@
         const sorted = [...this.calibration].sort((a, b) => a - b);
         this.noiseFloor = sorted[Math.floor(sorted.length / 2)] || this.noiseFloor;
       }
-      const threshold = Math.max(0.012, this.noiseFloor * (window.__isAssistantSpeaking ? 4.5 : 3));
+      // When assistant is speaking, use a much higher threshold and buffer requirement to prevent speaker acoustic feedback
+      const isSpeaking = Boolean(window.__isAssistantSpeaking);
+      const threshold = isSpeaking
+        ? Math.max(0.065, this.noiseFloor * 5.5)
+        : Math.max(0.012, this.noiseFloor * 2.5);
       const voiced = rms >= threshold;
 
       this.preRoll.push(frame);
@@ -162,9 +166,11 @@
       if (!this.capturing) {
         this.voicedBuffers = voiced ? this.voicedBuffers + 1 : 0;
         const speechAge = performance.now() - (window.__browserSpeechStartedAt || 0);
-        const canBargeIn = (window.__isAssistantSpeaking && speechAge > 450) || this.processing;
-        if (this.voicedBuffers >= 3 && (!window.__isAssistantSpeaking || canBargeIn)) {
-          this._beginUtterance(canBargeIn);
+        const canBargeIn = isSpeaking && speechAge > 800;
+        const requiredBuffers = isSpeaking ? 6 : 2;
+
+        if (this.voicedBuffers >= requiredBuffers && (!isSpeaking || canBargeIn)) {
+          this._beginUtterance(Boolean(isSpeaking));
         }
         return;
       }
@@ -174,7 +180,7 @@
       this.silentBuffers = voiced ? 0 : this.silentBuffers + 1;
       const silenceSeconds = this.silentBuffers * frame.length / this.sampleRate;
       const totalSeconds = this.captureSamples / this.sampleRate;
-      if ((silenceSeconds >= 0.9 && totalSeconds >= 0.45) || totalSeconds >= 30) {
+      if ((silenceSeconds >= 0.8 && totalSeconds >= 0.4) || totalSeconds >= 30) {
         this._finishUtterance();
       }
     }
@@ -189,6 +195,14 @@
       this.captureSamples = this.capture.reduce((total, frame) => total + frame.length, 0);
       this.silentBuffers = 0;
       this.voicedBuffers = 0;
+
+      // INSTANT CUT: Immediately stop assistant speech the millisecond user starts speaking
+      if (isInterruption || window.__isAssistantSpeaking) {
+        if (typeof window.stopAllAssistantSpeech === 'function') {
+          window.stopAllAssistantSpeech();
+        }
+      }
+
       this._setStatus(isInterruption ? 'INTERRUPTED — LISTENING' : 'HEARING YOU');
       if (window.tarsController) {
         window.tarsController.setState('listening');
@@ -235,6 +249,9 @@
         const heard = document.getElementById('live-heard-text');
         if (heard && result.heard) heard.textContent = `"${result.heard}"`;
         if (result.interrupted || result.ignored || !result.reply) {
+          if (typeof window.stopAllAssistantSpeech === 'function') {
+            window.stopAllAssistantSpeech();
+          }
           this._setStatus(this.mode === 'live' ? 'LIVE LISTENING' : `WAITING FOR “${this._getAssistantName()}”`);
           if (window.tarsController) {
             window.tarsController.setState(this.mode === 'live' ? 'listening' : 'standby');

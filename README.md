@@ -20,7 +20,7 @@ A private, modular, local-first DIY Home AI Assistant designed to run on a home 
   - `state.json`: Live household state (presence, media, alarms, power, active UI view).
   - `memory_log.jsonl`: Chronological episodic timeline of conversations and trigger events.
 - **Smart Home Tool Execution**: Built-in tool calling for media playback, alarms, timers, weather, routines, UI themes, visual engines, and system power management.
-- **Liquid Glass Web Dashboard & Setup Wizard**: Real-time web interface (`http://localhost:8000`) with visual configuration, live audio visualizers, and customizable themes.
+- **Liquid Glass Web Dashboard & Setup Wizard**: Real-time web interface with visual configuration, live audio visualizers, and customizable themes.
 - **Voice Barge-In & Interruption**: Instant cancellation of assistant speech when you speak or press wake buttons.
 
 ---
@@ -69,13 +69,25 @@ You do **not** need to edit JSON code or configuration files manually.
 
 When you start the assistant, open your browser to configure everything through the **Visual Setup Wizard**:
 
-**`http://localhost:8000/setup`** (or run `python setup.py`)
+**`http://localhost:5050/setup`** (or run `python setup.py`)
 
 The visual wizard guides you step-by-step through:
 1. **User Profile & Persona**: Enter your name, preferred greeting, and assistant name.
-2. **Phone Wi-Fi IP (Presence)**: Enter your phone's local Wi-Fi IP address so the assistant automatically greets you when you come home.
-3. **AI Brain & Provider**: Choose between 100% offline local AI (Llama 3.2) or Cloud APIs (Groq, Gemini, OpenAI, Claude, DeepSeek) with a single click.
+2. **Phone Wi-Fi IP (Presence)**: Enter your phone's local Wi-Fi IP address (with built-in guide for iPhone and Android) so the assistant automatically greets you when you come home.
+3. **AI Brain & Provider**: Choose between 100% offline local AI (Llama 3.2) with built-in live terminal download logs, or Cloud APIs (Groq, Gemini, OpenAI, Claude, DeepSeek) with a single click.
 4. **Voice & Audio**: Select your preferred speaker voice and calibrate your microphone.
+
+---
+
+## How Presence Detection Works
+
+The assistant knows when you arrive and leave your home without needing any mobile apps, GPS tracking, or battery drain on your phone:
+
+1. **Automatic Wi-Fi Association**: When you return home and your smartphone connects to your local home Wi-Fi network, your router recognizes your device.
+2. **Low-Latency Network Ping (Layer 1)**: The assistant periodically sends lightweight, non-intrusive network pings to your phone's local IP address.
+3. **Hardware ARP Inspection Fallback (Layer 2)**: Modern iOS and Android devices enter deep sleep and ignore network pings when the screen is turned off. To prevent false departures, the assistant automatically inspects your router's local hardware ARP table (`arp -a` on Windows/macOS, `arp -n` on Linux). If your phone's MAC address is still associated with the Wi-Fi router, the system knows you are still at home.
+4. **Debounce Engine (Anti-Flapping)**: Requires multiple consecutive missed cycles before marking you as "Away", ensuring temporary Wi-Fi blips or deep power-saving states never trigger false exit states.
+5. **Welcome Sequence**: The moment presence transitions from `Away` to `Home`, the assistant initiates your custom welcome greeting (e.g. *"Welcome home, Timilehin. How was your day?"*) and opens an active listening window to hear your reply.
 
 ---
 
@@ -94,7 +106,7 @@ run.bat
 ```
 *(Or double-click `run.bat` in File Explorer).*
 
-Then open your browser at **`http://localhost:8000`** to access the Liquid Glass dashboard.
+The dashboard will open automatically in your browser (default `http://localhost:5050` or `http://localhost:8000`).
 
 ### Extra Run Modes
 - **Simulate Arrival Immediately** (test greeting without waiting for Wi-Fi):
@@ -138,7 +150,7 @@ SmartHome/
 │   ├── presence.py             # Cross-platform network presence tracker (ping & ARP)
 │   ├── voice_input.py          # Microphone listener, STT, and voice activity detection
 │   ├── voice_output.py         # TTS engine & audio playback coordinator
-│   ├── web_server.py           # Dashboard HTTP server & JSON REST API
+│   ├── web_server.py           # Dashboard HTTP server & JSON REST API (with auto-port fallback)
 │   ├── setup_wizard.py         # Visual setup onboarding server
 │   ├── tools.py                # Smart home tools & automations
 │   ├── routines.py             # Scheduled routines and triggers
@@ -172,16 +184,14 @@ The assistant recognizes natural language commands and executes tools automatica
 ### 1. Microphone not picking up voice
 - **macOS**: Make sure Terminal / iTerm2 has Microphone access under *System Settings > Privacy & Security > Microphone*. Run `./scripts/request_mic_permission.sh` to trigger the permission prompt.
 - **Windows**: Ensure microphone permissions are enabled in *Windows Settings > Privacy & Security > Microphone*.
-- **Web UI**: Ensure browser microphone permissions are allowed for `http://localhost:8000`.
+- **Web UI**: Ensure browser microphone permissions are allowed when prompted.
 
-### 2. Port 8000 already in use
-If another application is using port 8000, free the port:
-- **macOS / Linux**: `lsof -ti :8000 | xargs kill -9`
-- **Windows**: `netstat -ano | findstr :8000` (then kill PID with `taskkill /PID <PID> /F`)
+### 2. Port already in use (Automatic Port Fallback)
+The web server **automatically detects busy ports** and binds to the next open port (e.g. 5050 -> 5051 -> 5052...) without crashing. The active URL is displayed in your terminal output and opened automatically in your browser.
 
 ### 3. Phone presence always shows "Away"
 - Ensure your phone is connected to the same local 2.4/5GHz Wi-Fi network.
-- Configure DHCP reservation or a static IP for your phone in your router settings.
+- Check your phone's IP in *Settings > Wi-Fi* and enter it in the Setup Wizard (`http://localhost:5050/setup`).
 - If your phone uses Private Wi-Fi MAC addresses, toggle your home Wi-Fi connection setting to **Use Device MAC**.
 
 ---
@@ -195,10 +205,10 @@ If you prefer to edit configuration files manually instead of using the Visual S
 ```json
 {
   "user_name": "Timilehin",
-  "phone_ip": "192.168.1.150",
+  "phone_ip": "192.168.18.3",
   "presence_poll_interval_seconds": 5,
   "presence_debounce_count": 2,
-  "greeting_text": "Welcome home, Timilehin. How was your day?",
+  "greeting_text": "Welcome home, Timilehin!",
   "trigger_phrases": ["hello", "hey", "hi"],
   "voice_name": "Samantha",
   "listen_timeout_seconds": 7,

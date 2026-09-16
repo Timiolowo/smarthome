@@ -12,19 +12,10 @@ let terminalVoiceMode = 'wake';
 window.__isAssistantSpeaking = false;
 window.__activeUtterance = null;
 
-// Safari WebKit Audio & Speech Synthesis Unlocker
+// Safari WebKit Audio Unlocker
 function primeSafariAudioContext() {
   if (window.__speechContextPrimed) return;
   window.__speechContextPrimed = true;
-  if ('speechSynthesis' in window) {
-    try {
-      window.speechSynthesis.resume();
-      const primeUtterance = new SpeechSynthesisUtterance(' ');
-      primeUtterance.volume = 0.01;
-      primeUtterance.rate = 2.0;
-      window.speechSynthesis.speak(primeUtterance);
-    } catch(e) {}
-  }
 }
 document.addEventListener('click', primeSafariAudioContext, { passive: true });
 document.addEventListener('touchstart', primeSafariAudioContext, { passive: true });
@@ -97,31 +88,33 @@ function cleanSpokenText(text) {
     .trim();
 }
 
+// Clean up legacy voice selection if it was set to Samantha or default
+(function() {
+  const currentSaved = localStorage.getItem('smarthome_selected_voice');
+  if (!currentSaved || currentSaved === 'Samantha' || currentSaved === 'default') {
+    localStorage.setItem('smarthome_selected_voice', 'Voice 4');
+  }
+})();
+
 function getBestNaturalVoice() {
   if (!('speechSynthesis' in window)) return null;
   const voices = window.speechSynthesis.getVoices() || [];
   if (!voices.length) return null;
 
   const savedVoiceName = localStorage.getItem('smarthome_selected_voice');
-  if (savedVoiceName) {
+  if (savedVoiceName && savedVoiceName !== 'Voice 4' && savedVoiceName !== 'default') {
     const matched = voices.find(v => v.name === savedVoiceName);
     if (matched) return matched;
   }
 
   const prioritized = [
+    'Voice 4',
+    'Microsoft Jenny Online (Natural)',
+    'Microsoft Aria Online (Natural)',
+    'Microsoft Guy Online (Natural)',
     'Samantha (Enhanced)',
-    'Siri',
     'Daniel (Enhanced)',
-    'Karen (Enhanced)',
-    'Samantha',
-    'Daniel',
-    'Karen',
-    'Victoria',
-    'Alex',
-    'Ava',
-    'Allison',
-    'Google US English',
-    'Google UK English Female'
+    'Karen (Enhanced)'
   ];
 
   for (const name of prioritized) {
@@ -140,14 +133,14 @@ function populateVoiceDropdown() {
   const voices = window.speechSynthesis.getVoices() || [];
   if (!voices.length) return;
 
-  const savedVoice = localStorage.getItem('smarthome_selected_voice') || '';
-  const currentOptions = Array.from(select.options).map(o => o.value);
+  const savedVoice = localStorage.getItem('smarthome_selected_voice') || 'Voice 4';
 
   // Filter primarily English voices first
   const enVoices = voices.filter(v => v.lang.startsWith('en'));
   const otherVoices = voices.filter(v => !v.lang.startsWith('en'));
 
-  let html = `<option value="">Auto-Detect Best Natural Voice (${getBestNaturalVoice()?.name || 'Samantha'})</option>`;
+  let html = `<option value="Voice 4" ${(savedVoice === 'Voice 4' || !savedVoice) ? 'selected' : ''}>✨ Siri Voice 4 (Enhanced) — Apple Neural Voice (Default)</option>`;
+  html += `<option value="">Auto-Detect Best Available Voice</option>`;
   if (enVoices.length) {
     html += `<optgroup label="English Voices (Mac & Browser)">`;
     enVoices.forEach(v => {
@@ -172,28 +165,61 @@ function handleVoiceSelectionChange(voiceName) {
     localStorage.setItem('smarthome_selected_voice', voiceName);
     showSonner('Voice Selected', `AI Voice set to: ${voiceName}`);
   } else {
-    localStorage.removeItem('smarthome_selected_voice');
-    showSonner('Voice Mode', 'Auto-detecting best natural Mac voice');
+    localStorage.setItem('smarthome_selected_voice', 'Voice 4');
+    showSonner('Voice Mode', 'AI Voice set to: Siri Voice 4 (Enhanced)');
   }
   // Sync to backend config.json
   fetch('/api/config', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({voice_name: voiceName || 'default'})
+    body: JSON.stringify({voice_name: voiceName || 'Voice 4'})
   }).catch(() => {});
 }
 window.handleVoiceSelectionChange = handleVoiceSelectionChange;
 
 function testSelectedVoice() {
-  const voice = getBestNaturalVoice();
-  const name = voice ? voice.name : 'Default Voice';
+  const saved = localStorage.getItem('smarthome_selected_voice');
+  const name = (saved && saved !== 'Voice 4' && saved !== 'default') ? saved : 'Siri Voice 4 (Enhanced)';
   showSonner('Testing Voice', `Speaking with ${name}...`);
-  speakWithBrowserVoice(`Hello Timilehin. This is the ${name} voice speaking. Ready to assist your smart home.`);
+  speakWithBrowserVoice(`Hello Timilehin. This is ${name} speaking. Ready to assist your smart home.`);
 }
 window.testSelectedVoice = testSelectedVoice;
 
+let activeAudioElement = null;
+let activeAudioBlobUrl = null;
+let activeTtsAbortController = null;
+
+function stopAllAssistantSpeech() {
+  if (activeTtsAbortController) {
+    try { activeTtsAbortController.abort(); } catch(e) {}
+    activeTtsAbortController = null;
+  }
+  if (activeAudioElement) {
+    try {
+      activeAudioElement.pause();
+      activeAudioElement.currentTime = 0;
+      activeAudioElement.src = '';
+    } catch(e) {}
+    activeAudioElement = null;
+  }
+  if (activeAudioBlobUrl) {
+    try { URL.revokeObjectURL(activeAudioBlobUrl); } catch(e) {}
+    activeAudioBlobUrl = null;
+  }
+  if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
+    try { window.speechSynthesis.cancel(); } catch(e) {}
+  }
+  window.__isAssistantSpeaking = false;
+  window.__browserSpeechStartedAt = 0;
+}
+window.stopAllAssistantSpeech = stopAllAssistantSpeech;
+
+// Always stop speech if the page unloads or loses focus
+window.addEventListener('beforeunload', stopAllAssistantSpeech);
+window.addEventListener('pagehide', stopAllAssistantSpeech);
+
 function speakWithBrowserVoice(rawText, onFinish) {
-  if (!isVoiceOutputEnabled || !('speechSynthesis' in window)) {
+  if (!isVoiceOutputEnabled) {
     if (onFinish) onFinish();
     return;
   }
@@ -205,6 +231,7 @@ function speakWithBrowserVoice(rawText, onFinish) {
   }
 
   try {
+    stopAllAssistantSpeech();
     window.__isAssistantSpeaking = true;
     window.__browserSpeechStartedAt = performance.now();
     if (speechTimerInterval) clearInterval(speechTimerInterval);
@@ -213,26 +240,6 @@ function speakWithBrowserVoice(rawText, onFinish) {
     if (globalSpeechRec) {
       try { globalSpeechRec.stop(); } catch(e){}
     }
-
-    if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
-      window.speechSynthesis.cancel();
-    }
-    window.speechSynthesis.resume();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    window.__activeUtterance = utterance; // Prevent WebKit GC from destroying utterance
-
-    const voice = getBestNaturalVoice();
-    if (voice) {
-      utterance.voice = voice;
-      utterance.lang = voice.lang || 'en-US';
-    } else {
-      utterance.lang = 'en-US';
-    }
-
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
 
     // Visual feedback on Live Display Orb & Navbar
     const orb = document.getElementById('live-ai-orb');
@@ -246,23 +253,11 @@ function speakWithBrowserVoice(rawText, onFinish) {
       window.tarsController.setState('speaking');
     }
 
-    // Safari WebKit 15s audio freeze workaround
-    speechTimerInterval = setInterval(() => {
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.pause();
-        window.speechSynthesis.resume();
-      } else {
-        clearInterval(speechTimerInterval);
-      }
-    }, 10000);
-
     let finished = false;
     const cleanup = () => {
       if (finished) return;
       finished = true;
-      window.__isAssistantSpeaking = false;
-      window.__browserSpeechStartedAt = 0;
-      window.__activeUtterance = null;
+      stopAllAssistantSpeech();
       if (speechTimerInterval) {
         clearInterval(speechTimerInterval);
         speechTimerInterval = null;
@@ -279,29 +274,115 @@ function speakWithBrowserVoice(rawText, onFinish) {
       if (onFinish) onFinish();
     };
 
-    utterance.onend = () => {
+    // Check if user explicitly selected a legacy browser voice in Settings
+    const savedVoiceName = localStorage.getItem('smarthome_selected_voice') || '';
+    const isExplicitBrowserVoice = Boolean(savedVoiceName && savedVoiceName !== 'Voice 4' && savedVoiceName !== 'default');
+
+    if (isExplicitBrowserVoice && 'speechSynthesis' in window) {
+      // User explicitly picked a browser voice in settings
+      const utterance = new SpeechSynthesisUtterance(text);
+      window.__activeUtterance = utterance;
+      const voice = getBestNaturalVoice();
+      if (voice) {
+        utterance.voice = voice;
+        utterance.lang = voice.lang || 'en-US';
+      }
+      utterance.onend = () => cleanup();
+      utterance.onerror = () => cleanup();
+      window.speechSynthesis.speak(utterance);
+      return;
+    }
+
+    // Default & Siri Mode: Stream pure high-fidelity Siri Voice from backend /api/tts
+    // Chunk into sentences for instant sub-second first-audio playback + background prefetching
+    const controller = new AbortController();
+    activeTtsAbortController = controller;
+
+    // Split text into natural sentence fragments
+    const rawSentences = text.match(/[^.!?]+[.!?]+["']?|[^.!?]+$/g) || [text];
+    const sentences = rawSentences.map(s => s.trim()).filter(Boolean);
+
+    if (!sentences.length) {
       cleanup();
-    };
-    utterance.onerror = (e) => {
-      console.warn("Speech synthesis notice:", e);
-      cleanup();
+      return;
+    }
+
+    let currentIndex = 0;
+    const blobCache = new Map();
+
+    const fetchSentenceBlob = async (idx) => {
+      if (idx >= sentences.length || finished) return null;
+      if (blobCache.has(idx)) return blobCache.get(idx);
+      try {
+        const sText = sentences[idx];
+        const res = await fetch(`/api/tts?text=${encodeURIComponent(sText)}`, { signal: controller.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const blob = await res.blob();
+        blobCache.set(idx, blob);
+        return blob;
+      } catch (err) {
+        return null;
+      }
     };
 
-    // Safety timeout in case Safari drops onend
-    const estimatedDurationMs = Math.max(3500, (text.length / 12) * 1000);
+    const playNext = async () => {
+      if (finished || !window.__isAssistantSpeaking || currentIndex >= sentences.length) {
+        cleanup();
+        return;
+      }
+      const idx = currentIndex++;
+
+      // Immediately kick off background prefetch for the next sentence
+      if (currentIndex < sentences.length) {
+        fetchSentenceBlob(currentIndex).catch(() => {});
+      }
+
+      let blob = blobCache.get(idx);
+      if (!blob) {
+        blob = await fetchSentenceBlob(idx);
+      }
+
+      if (finished || !window.__isAssistantSpeaking || !blob) {
+        cleanup();
+        return;
+      }
+
+      const blobUrl = URL.createObjectURL(blob);
+      activeAudioBlobUrl = blobUrl;
+      const audio = new Audio(blobUrl);
+      activeAudioElement = audio;
+
+      audio.onended = () => {
+        try { URL.revokeObjectURL(blobUrl); } catch(e) {}
+        playNext();
+      };
+      audio.onerror = () => {
+        try { URL.revokeObjectURL(blobUrl); } catch(e) {}
+        playNext();
+      };
+
+      try {
+        await audio.play();
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        playNext();
+      }
+    };
+
+    // Kick off playback of first sentence immediately!
+    playNext();
+
+    // Safety timeout
+    const estimatedDurationMs = Math.max(5000, (text.length / 10) * 1000);
     setTimeout(() => {
-      if (window.__isAssistantSpeaking && !window.speechSynthesis.speaking) {
+      if (window.__isAssistantSpeaking && !finished) {
         cleanup();
       }
-    }, estimatedDurationMs + 2000);
+    }, estimatedDurationMs + 5000);
 
-    window.speechSynthesis.speak(utterance);
-    window.speechSynthesis.resume();
   } catch (err) {
-    console.warn("Browser speech synthesis error:", err);
-    window.__isAssistantSpeaking = false;
-    window.__browserSpeechStartedAt = 0;
-    if (speechTimerInterval) clearInterval(speechTimerInterval);
+    console.warn("Browser speech error:", err);
+    stopAllAssistantSpeech();
     if (onFinish) onFinish();
   }
 }

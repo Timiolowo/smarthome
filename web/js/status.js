@@ -9,7 +9,7 @@ async function loadStatus() {
     cachedStatus = data;
     window.cachedStatus = data;
 
-    // Overview metric cards
+    // Overview metric cards & identity
     const uName = data.config?.user_name || data.user_profile?.name || 'Resident';
     const asstName = data.assistant?.name || data.config?.assistant_name || 'Nova';
     const dispUser = document.getElementById('disp-username');
@@ -28,6 +28,9 @@ async function loadStatus() {
     if (dispTimers) dispTimers.innerText = data.active_timers || 0;
     if (dispPower) dispPower.innerText = data.state?.power_source ? data.state.power_source.toUpperCase() : 'GRID';
 
+    // Update document title
+    document.title = `Smart Home AI — ${asstName}`;
+
     if (userBtn) userBtn.title = `User Profile: ${uName}`;
     if (userAvatar && uName) {
       const parts = uName.trim().split(/\s+/);
@@ -35,7 +38,7 @@ async function loadStatus() {
       userAvatar.textContent = initials;
     }
 
-    // Dynamic Standby caption
+    // Dynamic Standby caption & overlays
     const standbyCaption = document.getElementById('standby-status-caption');
     if (standbyCaption) {
       standbyCaption.textContent = `WAITING FOR ${asstName.toUpperCase()} · SAY "HEY ${asstName.toUpperCase()}" OR CLICK TO WAKE`;
@@ -44,6 +47,25 @@ async function loadStatus() {
     if (standbyOverlay) {
       standbyOverlay.title = `Tap anywhere to wake ${asstName}`;
     }
+
+    // Dynamic AI Architecture dossier & prompt info
+    const dossierTitle = document.getElementById('about-ai-dossier-title');
+    if (dossierTitle) dossierTitle.innerText = `${asstName} Assistant Dossier`;
+    const directivesDesc = document.getElementById('about-ai-directives-desc');
+    if (directivesDesc) directivesDesc.innerText = `Core operational directives programmed into ${asstName}'s system prompt.`;
+
+    // Dynamic Chat controls
+    const chatInterrupt = document.getElementById('btn-chat-interrupt');
+    if (chatInterrupt) chatInterrupt.title = `Stop ${asstName}'s current speech and response`;
+
+    // Dynamic Terminal titles & prompt prefixes
+    const termTitle = document.getElementById('terminal-modal-title-text');
+    if (termTitle) termTitle.innerText = `${asstName.toLowerCase()}@smarthome: ~ (live stream)`;
+    document.querySelectorAll('.terminal-prompt-prefix').forEach(el => {
+      el.innerText = `${asstName.toLowerCase()}@smarthome:~$`;
+    });
+    const termOptVoice = document.getElementById('terminal-opt-voice');
+    if (termOptVoice) termOptVoice.innerText = `Voice Only (Heard/${asstName})`;
 
     // Synchronize UI visual engine, active tab, theme, and kiosk mode
     const ui = data.ui || data.state?.ui;

@@ -1,6 +1,8 @@
 import json
 import os
+import platform
 import re
+import shutil
 import threading
 import time
 import webbrowser
@@ -206,6 +208,12 @@ class AssistantRequestHandler(BaseHTTPRequestHandler):
                 self._send_file(setup_file, "text/html")
             else:
                 self._send_file(os.path.join(WEB_DIR, "index.html"), "text/html")
+        elif path in ("/test_voices", "/test_voices.html"):
+            tv_file = os.path.join(WEB_DIR, "test_voices.html")
+            if os.path.exists(tv_file):
+                self._send_file(tv_file, "text/html")
+            else:
+                self._send_file(os.path.join(WEB_DIR, "index.html"), "text/html")
         elif path in ("/voice", "/home", "/chat", "/settings", "/alarms", "/profile", "/ai"):
             # SPA client-side routes — serve index.html, JS reads the path
             index_file = os.path.join(WEB_DIR, "index.html")
@@ -298,6 +306,105 @@ class AssistantRequestHandler(BaseHTTPRequestHandler):
             except Exception:
                 since_id = None
             self._send_json({"ok": True, "logs": terminal_logger.get_logs(limit=limit, since_id=since_id)})
+        elif path == "/api/tts":
+            qs = parse_qs(parsed.query)
+            text = qs.get("text", [""])[0].strip()
+            voice_param = qs.get("voice", [None])[0]
+            if not text:
+                self._send_json({"error": "No text provided"}, status=400)
+                return
+
+            import tempfile, subprocess
+            from src.voice_output import SIRI_SWIFT_PATH, normalize_voice_name
+            norm_v = normalize_voice_name(voice_param)
+
+            cache_key = (norm_v, text)
+            global _TTS_CACHE
+            if "_TTS_CACHE" not in globals():
+                _TTS_CACHE = {}
+
+            wav_bytes = _TTS_CACHE.get(cache_key)
+
+            if not wav_bytes and platform.system().lower() == "darwin" and shutil.which("swift") and os.path.exists(SIRI_SWIFT_PATH):
+                try:
+                    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tf:
+                        temp_path = tf.name
+                    cmd = ["swift", SIRI_SWIFT_PATH, "-o", temp_path]
+                    if norm_v:
+                        cmd += ["-v", norm_v]
+                    cmd.append(text)
+                    res = subprocess.run(cmd, capture_output=True, timeout=20)
+                    if res.returncode == 0 and os.path.exists(temp_path) and os.path.getsize(temp_path) > 100:
+                        with open(temp_path, "rb") as f:
+                            wav_bytes = f.read()
+                        if len(_TTS_CACHE) < 120:
+                            _TTS_CACHE[cache_key] = wav_bytes
+                    if os.path.exists(temp_path):
+                        try:
+                            os.unlink(temp_path)
+                        except Exception:
+                            pass
+                except Exception as e:
+                    print(f"[TTS Endpoint] Siri Swift render error: {e}")
+
+            if not wav_bytes and platform.system().lower() == "darwin" and not shutil.which("swift") and shutil.which("say"):
+                try:
+                    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tf:
+                        temp_path = tf.name
+                    cmd = ["say", "-o", temp_path, "--file-format=WAVE", "--data-format=LEI16@16000"]
+                    if norm_v:
+                        cmd += ["-v", norm_v]
+                    cmd.append(text)
+                    res = subprocess.run(cmd, capture_output=True, timeout=20)
+                    if res.returncode == 0 and os.path.exists(temp_path) and os.path.getsize(temp_path) > 100:
+                        with open(temp_path, "rb") as f:
+                            wav_bytes = f.read()
+                    if os.path.exists(temp_path):
+                        try:
+                            os.unlink(temp_path)
+                        except Exception:
+                            pass
+                except Exception as e:
+                    print(f"[TTS Endpoint] say render error: {e}")
+
+            if not wav_bytes and platform.system().lower() == "windows":
+                try:
+                    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tf:
+                        temp_path = tf.name
+                    escaped_text = text.replace("'", "''")
+                    escaped_path = temp_path.replace("'", "''")
+                    ps_cmd = (
+                        f"Add-Type -AssemblyName System.Speech; "
+                        f"$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer; "
+                        f"$synth.SetOutputToWaveFile('{escaped_path}'); "
+                        f"$synth.Speak('{escaped_text}'); "
+                        f"$synth.Dispose()"
+                    )
+                    res = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_cmd], capture_output=True, timeout=20)
+                    if res.returncode == 0 and os.path.exists(temp_path) and os.path.getsize(temp_path) > 100:
+                        with open(temp_path, "rb") as f:
+                            wav_bytes = f.read()
+                    if os.path.exists(temp_path):
+                        try:
+                            os.unlink(temp_path)
+                        except Exception:
+                            pass
+                except Exception as e:
+                    print(f"[TTS Endpoint] Windows PowerShell render error: {e}")
+
+            if wav_bytes:
+                try:
+                    self.send_response(200)
+                    self.send_header("Content-Type", "audio/wav")
+                    self.send_header("Content-Length", str(len(wav_bytes)))
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.send_header("Cache-Control", "no-cache")
+                    self.end_headers()
+                    self.wfile.write(wav_bytes)
+                except (BrokenPipeError, ConnectionResetError, OSError):
+                    pass  # Client cancelled or interrupted audio stream early
+            else:
+                self._send_json({"error": "TTS synthesis failed"}, status=500)
         else:
             # Check for static files under WEB_DIR (css, js, icons, etc.)
             clean_rel = os.path.normpath(path.lstrip("/"))
@@ -799,19 +906,22 @@ if status == .notDetermined {
 def run_web_server(host="0.0.0.0", port=5050, background=False, open_browser=False):
     actual_port = port
     server = None
-    for offset in range(10):
+    for offset in range(25):
         test_port = port + offset
         try:
             server = ThreadingHTTPServer((host, test_port), AssistantRequestHandler)
             actual_port = test_port
             break
         except OSError as e:
-            if e.errno == 48: # Address already in use
+            # 48 on macOS, 98 on Linux, 10048 on Windows
+            if e.errno in (48, 98, 10048) or "address already in use" in str(e).lower() or "already in use" in str(e).lower():
+                continue
+            if offset < 24:
                 continue
             raise
 
     if server is None:
-        print(f"❌ [Web UI] Could not bind to port {port} or next 10 ports.")
+        print(f"❌ [Web UI] Could not bind to port {port} or next 25 ports.")
         return None
 
     local_url = f"http://localhost:{actual_port}"

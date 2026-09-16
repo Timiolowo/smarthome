@@ -35,7 +35,7 @@ def test_memory():
     from src.memory import memory
     prompt = memory.get_llm_system_prompt()
     assert "Timilehin" in prompt, "Prompt should contain user name Timilehin"
-    assert "Merlin" in prompt, "Prompt should contain favorite series Merlin"
+    assert "The 100" in prompt, "Prompt should contain favorite series The 100"
     print("✅ Memory manager loaded and generated valid LLM system prompt.")
 
 def test_brain():

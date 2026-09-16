@@ -24,7 +24,7 @@
     },
     "weather": {
       "temperature": "28\u00b0C",
-      "description": "PARTLY CLOUDY"
+      "description": "MAINLY CLEAR"
     }
   },
   "preferences": {
@@ -36,8 +36,6 @@
         "Mystery / Intrigue"
       ],
       "favorite_series": [
-        "Merlin",
-        "Silo",
         "The 100",
         "Alchemy of Souls"
       ],

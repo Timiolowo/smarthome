@@ -228,6 +228,24 @@
             </div>
           </div>
 
+          <!-- Live Terminal Logs Console -->
+          <div class="setup-terminal-card" id="setup-terminal-card" style="margin-top: 14px; background: #0b0f19; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; font-family: monospace;">
+            <div class="terminal-card-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: #94a3b8;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
+                <span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+                <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+                <span style="margin-left: 6px; font-weight: 600; color: #cbd5e1;">Live Setup &amp; Installation Logs</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <button type="button" onclick="const t=document.getElementById('setup-terminal-logs')?.innerText; if(t) { navigator.clipboard?.writeText(t); alert('Setup logs copied to clipboard!'); }" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer;">Copy Logs</button>
+                <span id="terminal-status-badge" style="font-size: 11px; padding: 2px 8px; border-radius: 4px; background: rgba(16,185,129,0.15); color: #34d399;">Ready</span>
+              </div>
+            </div>
+            <div class="terminal-body" id="setup-terminal-logs" style="padding: 12px 14px; max-height: 150px; overflow-y: auto; font-size: 12px; line-height: 1.6; color: #6ee7b7; white-space: pre-wrap;">[System] Setup Assistant initialized.
+[System] Select your model tier and click 'Download Models' to verify or fetch local weights.</div>
+          </div>
+
           <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
             <button type="button" class="btn btn-primary" id="btn-download-all">
               Download Models (1-Click)
@@ -328,9 +346,21 @@
 
           <div class="form-group-full form-group" style="margin-top: 10px;">
             <label class="form-label" for="input-phone-ip">
-              Presence Detection (Phone IP) <span class="label-hint">Optional</span>
+              Presence Detection (Phone IP or Hostname) <span class="label-hint">Enables automatic welcome greetings when you arrive home</span>
             </label>
-            <input type="text" id="input-phone-ip" class="form-input" placeholder="e.g. 192.168.1.150 (Leave blank if not needed)" />
+            <input type="text" id="input-phone-ip" class="form-input" placeholder="e.g. 192.168.18.3 or iPhone.local" />
+
+            <div class="ip-help-card" style="margin-top: 10px; padding: 12px 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; font-size: 13px; line-height: 1.5;">
+              <div style="font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; color: var(--text-primary, #fff);">
+                <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
+                <span>How to find your Phone's IP address:</span>
+              </div>
+              <ul style="margin: 0; padding-left: 18px; color: var(--text-secondary, #94a3b8);">
+                <li style="margin-bottom: 4px;"><strong>iPhone</strong>: Open <em>Settings &gt; Wi-Fi</em> &rarr; tap the <strong>(i)</strong> icon next to your home Wi-Fi &rarr; copy <strong>IP Address</strong> (e.g. <code>192.168.18.3</code>).</li>
+                <li style="margin-bottom: 4px;"><strong>Android</strong>: Open <em>Settings &gt; Wi-Fi / Network</em> &rarr; tap your connected Wi-Fi &rarr; copy <strong>IP Address</strong>.</li>
+                <li><em>Tip: You can also use your phone's hostname like <code>iPhone.local</code> instead of numbers.</em></li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>

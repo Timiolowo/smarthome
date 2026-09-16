@@ -87,6 +87,13 @@ PIPER_CONFIG_PATH = os.path.join(
 )
 
 
+SIRI_SWIFT_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "native",
+    "siri_speak.swift",
+)
+
+
 class Speaker:
     def __init__(self):
         self._system = platform.system().lower()
@@ -94,6 +101,7 @@ class Speaker:
         self.piper_voice = None
         self.current_process: Optional[subprocess.Popen] = None
         self.native_capture = None
+        self.has_swift = bool(self._system == "darwin" and shutil.which("swift") and os.path.exists(SIRI_SWIFT_PATH))
 
         # 1. On non-macOS systems (Linux/PC), load Piper Neural TTS
         if self._system != "darwin" and os.path.exists(PIPER_MODEL_PATH) and os.path.exists(PIPER_CONFIG_PATH):
@@ -145,7 +153,7 @@ class Speaker:
     def speak(self, text: str, listener=None, interruptible: bool = False, voice: Optional[str] = None) -> bool:
         """
         Speaks text aloud smoothly.
-        On macOS: Uses native high-quality built-in voice.
+        On macOS: Uses natural Apple Siri Voice (Voice 4 Enhanced) with fallback to 'say'.
         On other systems (Linux/PC): Uses downloaded Piper Neural Voice.
         """
         self.stop()
@@ -159,10 +167,32 @@ class Speaker:
                 with tempfile.NamedTemporaryFile(suffix='.wav') as file:
                     started = time.monotonic()
                     listener._state('SYNTHESIZING', 'Preparing my reply')
-                    cmd = ['say', '-o', file.name, '--file-format=WAVE', '--data-format=LEI16@16000']
-                    if norm_voice:
-                        cmd += ['-v', norm_voice]
-                    subprocess.run(cmd + [text], check=True, capture_output=True, timeout=60)
+                    rendered = False
+
+                    # 1a. Try Siri Enhanced voice via Swift first
+                    if self.has_swift:
+                        try:
+                            siri_cmd = ['swift', SIRI_SWIFT_PATH, '-o', file.name]
+                            if norm_voice:
+                                siri_cmd += ['-v', norm_voice]
+                            siri_cmd.append(text)
+                            res = subprocess.run(siri_cmd, capture_output=True, timeout=30)
+                            if res.returncode == 0 and os.path.exists(file.name) and os.path.getsize(file.name) > 1000:
+                                rendered = True
+                        except Exception as e:
+                            print(f"[Speaker] Siri Swift TTS notice: {e}, using system fallback.")
+
+                    # 1b. Only fallback to macOS 'say' command to render WAV if Swift is not available
+                    if not rendered and not self.has_swift:
+                        cmd = ['say', '-o', file.name, '--file-format=WAVE', '--data-format=LEI16@16000']
+                        if norm_voice:
+                            cmd += ['-v', norm_voice]
+                        subprocess.run(cmd + [text], check=True, capture_output=True, timeout=60)
+                        rendered = True
+
+                    if not rendered:
+                        raise RuntimeError('Failed to synthesize speech audio with native engine')
+
                     with wave.open(file.name, 'rb') as wav:
                         if not wav.getnframes():
                             raise RuntimeError('System voice produced no audio')
@@ -188,13 +218,35 @@ class Speaker:
                     return interrupted
             except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
                 self.stop()
-                print(f'[Speaker] Echo-cancelled playback failed ({exc}); using system voice and Enter to interrupt.')
+                print(f'[Speaker] Echo-cancelled playback failed ({exc}); using direct voice playback.')
 
         if listener:
             listener._state('SPEAKING', 'Speaking — press Enter to interrupt')
 
-        # 1. macOS native 'say' (Clean, fast, built-in Mac voice)
-        if self._system == "darwin" and shutil.which("say"):
+        # 1. macOS Siri Neural / Enhanced Voice (natural smooth voice via Swift)
+        if self._system == "darwin" and self.has_swift:
+            try:
+                cmd = ["swift", SIRI_SWIFT_PATH]
+                if norm_voice:
+                    cmd += ["-v", norm_voice]
+                cmd.append(text)
+                self.current_process = subprocess.Popen(cmd)
+                if not interruptible or listener is None:
+                    self.current_process.wait()
+                    return False
+                else:
+                    interrupted = listener.monitor_for_interruption(self.current_process, allow_voice=False)
+                    if interrupted:
+                        self.stop()
+                        print("\n⚡ [INTERRUPTED]: Speech cut off by user.")
+                        return True
+                    return False
+            except subprocess.SubprocessError as e:
+                print(f"[Speaker] Siri Swift speech failed: {e}")
+                return False
+
+        # 2. macOS legacy 'say' (ONLY when Swift toolchain is unavailable)
+        if self._system == "darwin" and not self.has_swift and shutil.which("say"):
             try:
                 if norm_voice:
                     cmd = ["say", "-v", norm_voice, text]
@@ -212,9 +264,10 @@ class Speaker:
                     return True
                 return False
             except subprocess.SubprocessError as e:
-                print(f"[Speaker] macOS 'say' failed ({e}), falling back...")
+                print(f"[Speaker] macOS 'say' failed ({e})")
+                return False
 
-        # 2. Piper Neural TTS (For Linux/PC/other systems - high quality offline voice)
+        # 3. Piper Neural TTS (For Linux/PC/other systems - high quality offline voice)
         if self.piper_voice is not None and sd is not None and np is not None:
             try:
                 wav_io = io.BytesIO()
@@ -242,7 +295,25 @@ class Speaker:
             except Exception as e:
                 print(f"[Speaker] Piper speech error ({e}), trying fallback...")
 
-        # 3. Linux / other fallback (espeak or pyttsx3)
+        # 4. Windows native System.Speech fallback (PowerShell)
+        if self._system == "windows":
+            try:
+                escaped = text.replace("'", "''")
+                ps_script = f"Add-Type -AssemblyName System.Speech; $synth = New-Object System.Speech.Synthesis.SpeechSynthesizer; $synth.Speak('{escaped}')"
+                self.current_process = subprocess.Popen(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_script])
+                if not interruptible or listener is None:
+                    self.current_process.wait()
+                    return False
+                interrupted = listener.monitor_for_interruption(self.current_process, allow_voice=False)
+                if interrupted:
+                    self.stop()
+                    print("\n⚡ [INTERRUPTED]: Speech cut off by user.")
+                    return True
+                return False
+            except Exception:
+                pass
+
+        # 5. Linux / other fallback (espeak or pyttsx3)
         if shutil.which("espeak"):
             try:
                 self.current_process = subprocess.Popen(["espeak", text])

@@ -46,6 +46,14 @@ function renderUserProfile(mem) {
 
 function renderAboutAI(asst) {
   if (!asst) return;
+  const asstName = asst.name || 'Nova';
   const nameEl = document.getElementById('about-ai-name');
-  if (nameEl && asst.name) nameEl.innerText = asst.name;
+  if (nameEl) nameEl.innerText = asstName;
+
+  const titleEl = document.getElementById('about-ai-dossier-title');
+  if (titleEl) titleEl.innerText = `${asstName} Assistant Dossier`;
+
+  const descEl = document.getElementById('about-ai-directives-desc');
+  if (descEl) descEl.innerText = `Core operational directives programmed into ${asstName}'s system prompt.`;
 }
+window.renderAboutAI = renderAboutAI;

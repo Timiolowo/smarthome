@@ -12,6 +12,9 @@ function updateAudioHealth(audio) {
 }
 
 async function interruptAssistant() {
+  if (typeof window.stopAllAssistantSpeech === 'function') {
+    window.stopAllAssistantSpeech();
+  }
   window.speechSynthesis?.cancel();
   window.__isAssistantSpeaking = false;
   window.__browserSpeechStartedAt = 0;
@@ -19,7 +22,7 @@ async function interruptAssistant() {
   try {
     const response = await fetch('/api/voice/interrupt', {method: 'POST'});
     if (!response.ok) throw new Error('Could not stop speech');
-  } catch (error) { showToast(error.message); }
+  } catch (error) { if (typeof showToast === 'function') showToast(error.message); }
 }
 window.interruptAssistant = interruptAssistant;
 

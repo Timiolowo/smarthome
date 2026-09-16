@@ -111,7 +111,7 @@
     },
     {
       "name": "Entertainment & Media Tracking",
-      "description": "Remembers favorite series (Merlin, Silo, The 100, Alchemy of Souls) and paused show timestamps in data/state.json."
+      "description": "Remembers favorite series and paused show timestamps from resident preferences."
     },
     {
       "name": "Power Grid & Inverter Awareness",

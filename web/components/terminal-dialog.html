@@ -26,7 +26,7 @@
         <!-- Filter Selector -->
         <select id="terminal-log-filter" class="terminal-filter-select" onchange="filterTerminalLogs(this.value)">
           <option value="all">All Logs</option>
-          <option value="voice">Voice Only (Heard/Nova)</option>
+          <option value="voice" id="terminal-opt-voice">Voice Only (Heard/Nova)</option>
           <option value="system">System & Power</option>
           <option value="error">Errors Only</option>
         </select>
@@ -37,6 +37,15 @@
             <polyline points="6 9 12 15 18 9"/>
           </svg>
           <span>Auto-Scroll</span>
+        </button>
+
+        <!-- Copy Logs Button -->
+        <button type="button" id="btn-terminal-copy" class="terminal-action-btn" onclick="copyTerminalLogs()" title="Copy Terminal Logs to Clipboard">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+          </svg>
+          <span id="terminal-copy-label">Copy</span>
         </button>
 
         <!-- Clear Logs Button -->

@@ -57,6 +57,61 @@ function filterTerminalLogs(val) {
 }
 window.filterTerminalLogs = filterTerminalLogs;
 
+async function copyTerminalLogs() {
+  if (!terminalCachedLogs || terminalCachedLogs.length === 0) {
+    if (typeof showSonner === 'function') {
+      showSonner('Terminal', 'No logs to copy');
+    }
+    return;
+  }
+
+  let filtered = terminalCachedLogs;
+  if (terminalCurrentFilter === 'voice') {
+    filtered = filtered.filter(l => l.type === 'heard' || l.type === 'assistant');
+  } else if (terminalCurrentFilter === 'system') {
+    filtered = filtered.filter(l => l.type === 'system' || l.type === 'power_on' || l.type === 'power_off' || l.type === 'standby');
+  } else if (terminalCurrentFilter === 'error') {
+    filtered = filtered.filter(l => l.type === 'error' || l.level === 'error');
+  }
+
+  const textToCopy = filtered.map(item => `[${item.timestamp}] ${item.text}`).join('\n');
+
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(textToCopy);
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = textToCopy;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
+    const copyBtn = document.getElementById('btn-terminal-copy');
+    const label = document.getElementById('terminal-copy-label');
+    if (label) label.textContent = 'Copied!';
+    if (copyBtn) copyBtn.classList.add('active');
+
+    setTimeout(() => {
+      if (label) label.textContent = 'Copy';
+      if (copyBtn) copyBtn.classList.remove('active');
+    }, 2000);
+
+    if (typeof showSonner === 'function') {
+      showSonner('Terminal Logs Copied', `Copied ${filtered.length} log lines to clipboard.`);
+    }
+  } catch (err) {
+    console.warn('Failed to copy terminal logs:', err);
+    if (typeof showSonner === 'function') {
+      showSonner('Copy Failed', 'Could not copy to clipboard.');
+    }
+  }
+}
+window.copyTerminalLogs = copyTerminalLogs;
+
 async function clearTerminalLogs() {
   try {
     await fetch('/api/terminal/clear', { method: 'POST' });
@@ -160,10 +215,11 @@ async function submitTerminalCommand(event) {
     });
     const data = await res.json();
     if (data.ok && data.reply) {
+      const asstName = (window.cachedStatus?.assistant?.name || window.cachedStatus?.config?.assistant_name || 'Nova');
       terminalCachedLogs.push({
         id: ++terminalLastLogId,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-        text: `🤖 [Nova]: "${data.reply}"`,
+        text: `🤖 [${asstName}]: "${data.reply}"`,
         type: 'assistant',
         level: 'info'
       });

@@ -571,23 +571,15 @@ async function processVoiceInput(text) {
     if (orb) orb.className = 'magic-ripple-container speaking';
     if (orbText) orbText.textContent = 'Speaking response...';
 
-    // Speak aloud with Web Speech Synthesis if available
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(reply);
-      const voice = typeof getBestNaturalVoice === 'function' ? getBestNaturalVoice() : null;
-      if (voice) { utterance.voice = voice; utterance.lang = voice.lang; }
+    // Speak aloud with Siri Enhanced / Web Voice
+    if (typeof speakWithBrowserVoice === 'function') {
+      speakWithBrowserVoice(reply, () => {
         if (orb) orb.className = 'magic-ripple-container idle';
         if (orbText) orbText.textContent = 'Standby • Say "Hey" or "Hello"';
         if (/standby mode|sleeping display|ambient standby/i.test(reply)) {
           if (typeof window.showIosStandby === 'function') window.showIosStandby();
         }
-      };
-      utterance.onerror = () => {
-        if (orb) orb.className = 'magic-ripple-container idle';
-        if (orbText) orbText.textContent = 'Standby • Say "Hey" or "Hello"';
-      };
-      window.speechSynthesis.speak(utterance);
+      });
     } else {
       setTimeout(() => {
         if (orb) orb.className = 'magic-ripple-container idle';
@@ -760,16 +752,7 @@ function restoreTarsSideColumn() {
 }
 
 restoreTarsSideColumn();
-document.addEventListener('DOMContentLoaded', () => {
-  restoreTarsSideColumn();
-  const btn = document.getElementById('btn-toggle-tars-side');
-  if (btn) {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleTarsSideColumn();
-    });
-  }
-});
+document.addEventListener('DOMContentLoaded', restoreTarsSideColumn);
 
 // --- Cancel Active Sleep & Wake Assistant ---
 async function cancelAssistantSleep() {

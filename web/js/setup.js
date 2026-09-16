@@ -433,6 +433,34 @@ function handlePrev() {
   }
 }
 
+let lastLoggedFile = "";
+let lastLoggedStepPct = 0;
+
+function appendTerminalLog(msg, type = "info") {
+  const term = document.getElementById("setup-terminal-logs");
+  if (!term) return;
+  const timeStr = new Date().toLocaleTimeString();
+  const prefix = type === "error" ? "[ERROR]" : (type === "success" ? "[SUCCESS]" : "[INFO]");
+  term.textContent += `\n[${timeStr}] ${prefix} ${msg}`;
+  term.scrollTop = term.scrollHeight;
+}
+
+function updateTerminalBadge(text, colorClass = "ready") {
+  const badge = document.getElementById("terminal-status-badge");
+  if (!badge) return;
+  badge.textContent = text;
+  if (colorClass === "downloading") {
+    badge.style.background = "rgba(59,130,246,0.15)";
+    badge.style.color = "#60a5fa";
+  } else if (colorClass === "success") {
+    badge.style.background = "rgba(16,185,129,0.15)";
+    badge.style.color = "#34d399";
+  } else if (colorClass === "error") {
+    badge.style.background = "rgba(239,68,68,0.15)";
+    badge.style.color = "#f87171";
+  }
+}
+
 // Model Downloader
 async function startModelDownload() {
   const btn = document.getElementById("btn-download-all");
@@ -440,6 +468,8 @@ async function startModelDownload() {
   btn.disabled = true;
   btn.textContent = "Starting Download...";
   progressBox.classList.add("active");
+  updateTerminalBadge("Downloading...", "downloading");
+  appendTerminalLog(`Initiating download sequence for: ${setupData.llm_choice}, Faster-Whisper STT, and Piper Neural TTS.`);
 
   try {
     const res = await fetch("/api/models/download", {
@@ -452,18 +482,26 @@ async function startModelDownload() {
 
     const data = await res.json();
     if (!res.ok) {
-      alert("Download error: " + (data.error || "Unknown error"));
+      const err = data.error || "Unknown error";
+      alert("Download error: " + err);
+      appendTerminalLog(`Failed to start download: ${err}`, "error");
+      updateTerminalBadge("Failed", "error");
       btn.disabled = false;
       btn.textContent = "Download All Models (1-Click)";
       return;
     }
 
+    appendTerminalLog("Connected to HuggingFace repository. Streaming chunks...");
     // Start polling progress
     if (downloadPollTimer) clearInterval(downloadPollTimer);
+    lastLoggedFile = "";
+    lastLoggedStepPct = 0;
     downloadPollTimer = setInterval(pollDownloadStatus, 500);
 
   } catch (err) {
     console.error("Download trigger failed:", err);
+    appendTerminalLog(`Download connection error: ${err.message}`, "error");
+    updateTerminalBadge("Error", "error");
     alert("Could not start download: " + err.message);
     btn.disabled = false;
   }
@@ -482,7 +520,14 @@ async function pollDownloadStatus() {
     const eta = document.getElementById("progress-eta");
     const bytes = document.getElementById("progress-bytes");
 
-    if (st.current_file) label.textContent = `Downloading: ${st.current_file}`;
+    if (st.current_file) {
+      label.textContent = `Downloading: ${st.current_file}`;
+      if (st.current_file !== lastLoggedFile) {
+        lastLoggedFile = st.current_file;
+        appendTerminalLog(`Fetching: ${st.current_file}...`);
+      }
+    }
+
     pct.textContent = `${st.percent}%`;
     bar.style.width = `${st.percent}%`;
     speed.textContent = `${st.speed_mbps} Mbps`;
@@ -499,6 +544,12 @@ async function pollDownloadStatus() {
       const mbDown = (st.bytes_downloaded / (1024 * 1024)).toFixed(1);
       const mbTotal = (st.total_bytes / (1024 * 1024)).toFixed(1);
       bytes.textContent = `${mbDown} / ${mbTotal} MB`;
+      
+      const currentQuarter = Math.floor(st.percent / 25) * 25;
+      if (currentQuarter > lastLoggedStepPct && currentQuarter > 0) {
+        lastLoggedStepPct = currentQuarter;
+        appendTerminalLog(`Overall Progress: ${currentQuarter}% complete (${mbDown}/${mbTotal} MB @ ${st.speed_mbps} Mbps)`);
+      }
     }
 
     if (st.state === "completed") {
@@ -510,6 +561,8 @@ async function pollDownloadStatus() {
       btn.textContent = "All Local Models Verified";
       btn.disabled = true;
       btn.classList.replace("btn-primary", "btn-secondary");
+      updateTerminalBadge("Completed", "success");
+      appendTerminalLog("All model weights verified on local filesystem. Ready for deployment!", "success");
 
       // Reload models list
       const statusRes = await fetch("/api/setup/status");
@@ -521,6 +574,8 @@ async function pollDownloadStatus() {
       const btn = document.getElementById("btn-download-all");
       btn.disabled = false;
       btn.textContent = "Retry Download";
+      updateTerminalBadge("Error", "error");
+      appendTerminalLog(`Download error: ${st.error_message || "Failed"}`, "error");
     }
   } catch (e) {
     console.error("Polling error:", e);
