@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "profile": {
     "preferred_name": "Timilehin",
-    "location": "Nigeria",
+    "location": "Lagos, Nigeria",
     "timezone": "Africa/Lagos",
     "persona": {
       "character": "Intelligent, grounded, calm, and reliable personal smart home assistant",
@@ -17,7 +17,15 @@
       "Strictly a personal home companion.",
       "Zero work-related discussions. Never mention corporate, insurance, or actuarial tasks at home.",
       "Home is purely for rest, entertainment, gadgets, and personal time."
-    ]
+    ],
+    "coordinates": {
+      "lat": 6.4474,
+      "lon": 3.3903
+    },
+    "weather": {
+      "temperature": "28\u00b0C",
+      "description": "PARTLY CLOUDY"
+    }
   },
   "preferences": {
     "entertainment": {
@@ -75,5 +83,10 @@
       "device_identifier": "phone"
     }
   ],
-  "learned_facts": []
+  "learned_facts": [
+    "my best food is beans cake",
+    "User context: Software engineer test context",
+    "I kept my pen in the blue pouch on the living room table",
+    "My phone password is 7890"
+  ]
 }

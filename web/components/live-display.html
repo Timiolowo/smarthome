@@ -1,0 +1,226 @@
+<!-- ==========================================================================
+     TARS AI VOICE HUB & TELEMETRY DASHBOARD
+     Central Voice Core + PersonalAssistant Chronometer / Location + System Dials
+     ========================================================================== -->
+<section id="tab-livedisplay" class="section-card visible active">
+  <div class="tars-hub-layout">
+
+    <!-- 1. CENTER STAGE: TARS REACTOR & AUDIO WAVEFORM -->
+    <div class="tars-center-stage">
+
+      <!-- Top Controls: Side Telemetry Toggle (Icon-only) -->
+      <div class="tars-stage-top-bar">
+        <button type="button" id="btn-toggle-tars-side" class="tars-side-collapse-btn" onclick="toggleTarsSideColumn()" title="Toggle Side Telemetry Column">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" style="pointer-events: none;">
+            <rect width="18" height="18" x="3" y="3" rx="2"/>
+            <path d="M15 3v18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Core Reactor Visualizer (Click to interact / cycle states) -->
+      <div id="tars-reactor-wrapper" class="tars-reactor-wrapper" title="Click to talk or change voice state">
+        <div class="tars-core-glow"></div>
+
+        <!-- Three.js 3D Particle Canvas -->
+        <canvas id="tars-3d-canvas"></canvas>
+
+        <!-- TARS 2D Concentric Rotating SVG Rings -->
+        <div class="tars-core" aria-hidden="true">
+          <svg viewBox="0 0 200 200" width="100%" height="100%">
+            <!-- Outer counter-rotating ring with tick dashes -->
+            <g class="tars-ring-outer">
+              <circle cx="100" cy="100" r="90" fill="none" stroke="var(--accent, #38bdf8)" stroke-width="1.2"
+                stroke-opacity="0.45" stroke-dasharray="3 7" />
+              <circle cx="100" cy="100" r="94" fill="none" stroke="var(--accent, #38bdf8)" stroke-width="0.8"
+                stroke-opacity="0.25" stroke-dasharray="1 12" />
+            </g>
+            <!-- Middle broken-arc ring -->
+            <g class="tars-ring-mid">
+              <circle cx="100" cy="100" r="68" fill="none" stroke="var(--accent, #38bdf8)" stroke-width="2.2"
+                stroke-opacity="0.85" stroke-dasharray="140 80" stroke-linecap="round" />
+            </g>
+            <!-- Inner fast ring -->
+            <g class="tars-ring-inner">
+              <circle cx="100" cy="100" r="46" fill="none" stroke="var(--accent, #38bdf8)" stroke-width="1.6"
+                stroke-opacity="0.7" stroke-dasharray="36 16" />
+            </g>
+            <!-- Center reactor pulse core -->
+            <circle class="tars-core-node" cx="100" cy="100" r="14" fill="var(--accent, #38bdf8)" fill-opacity="0.95" />
+            <circle cx="100" cy="100" r="24" fill="none" stroke="var(--accent, #38bdf8)" stroke-width="1.2"
+              stroke-opacity="0.5" />
+          </svg>
+        </div>
+
+        <!-- Sleeping / Timed Shutdown Countdown Overlay -->
+        <div id="tars-sleep-countdown" class="tars-sleep-overlay" style="display: none;">
+          <div class="tars-sleep-badge">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5Z"/></svg>
+            <span>STANDBY · SLEEP MODE</span>
+          </div>
+          <div class="tars-countdown-timer" id="tars-countdown-val">05:00</div>
+          <div class="tars-countdown-sub" id="tars-countdown-sub">COMING BACK ONLINE IN 5 MINUTES</div>
+          <button type="button" class="tars-wake-btn" onclick="cancelAssistantSleep()" title="Wake Up Assistant Core Now">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>WAKE UP NOW</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="terminal-voice-mode" class="terminal-voice-mode" aria-live="polite">STANDBY</div>
+
+      <!-- Live Audio Waveform Canvas -->
+      <div class="tars-waveform-container">
+        <canvas id="tars-waveform-canvas"></canvas>
+      </div>
+
+    </div>
+
+    <!-- 2. SIDE COLUMN: CHRONOMETER, LOCATION/WEATHER & SYSTEM TELEMETRY -->
+    <div class="tars-side-column" id="tars-side-column">
+
+      <!-- Upper Section: Chronometer & Location/Weather (PersonalAssistant) -->
+      <div class="tars-chronometer-card">
+
+        <!-- Live Chronometer Display -->
+        <div>
+          <div class="chrono-clock-row">
+            <span id="chrono-time" class="chrono-time-display">12:00</span>
+            <span id="chrono-seconds" class="chrono-seconds">:00</span>
+            <span id="chrono-ampm" class="chrono-ampm-badge">PM</span>
+          </div>
+          <div id="chrono-date" class="chrono-date-display">THURSDAY, SEP 10, 2026</div>
+        </div>
+
+        <div class="chrono-divider"></div>
+
+        <!-- Location & Live Ambient Weather -->
+        <div class="location-weather-badge">
+          <div class="location-info">
+            <div class="location-icon-wrap">
+              <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </div>
+            <div>
+              <div id="chrono-city" class="location-city">Smart Hub Local</div>
+              <div id="chrono-coords" class="location-coords">51.23°N, 6.77°E</div>
+            </div>
+          </div>
+
+          <div class="weather-info">
+            <div>
+              <div id="chrono-temp" class="weather-temp">21°C</div>
+              <div id="chrono-desc" class="weather-desc">OPTIMAL</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Card 2: Center Section (THE BIGGEST) - System Telemetry / Modular Deck -->
+      <div class="tars-system-card tars-center-card">
+        <div class="system-card-header">
+          <span class="system-title">SYSTEM STATUS</span>
+          <span class="badge badge-outline"
+            style="color:var(--accent, #38bdf8); border-color:var(--accent, #38bdf8);">ONLINE</span>
+        </div>
+
+        <div class="system-readout-row">
+          <span class="system-readout-label">Core reactor</span>
+          <span class="system-readout-val ok">optimal · active</span>
+        </div>
+
+        <div class="system-readout-row">
+          <span class="system-readout-label">Memory sync</span>
+          <span class="system-readout-val ok">live · local sqlite</span>
+        </div>
+
+        <div class="system-readout-row">
+          <span class="system-readout-label">Model</span>
+          <span id="tars-model-val" class="system-readout-val active">--</span>
+        </div>
+
+        <div class="system-readout-row">
+          <span class="system-readout-label">Reasoning</span>
+          <span id="tars-reasoning-val" class="system-readout-val ok">--</span>
+        </div>
+
+        <div class="system-readout-row">
+          <span class="system-readout-label">Voice interface</span>
+          <span id="tars-voice-val" class="system-readout-val ok">STT/TTS ready</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Bottom Section (Status, Live Listen & 2D/3D Mode Controls) -->
+      <div class="tars-bottom-card">
+        <div class="system-card-header">
+          <span class="system-title">ORB & VOICE CONTROL</span>
+          <span class="badge badge-outline"
+            style="color:var(--accent, #38bdf8); border-color:var(--accent, #38bdf8); font-size: 10px;">ONLINE</span>
+        </div>
+
+        <div class="system-readout-row" style="margin-top: 0.35rem;">
+          <span class="system-readout-label">Live listening</span>
+          <div id="switch-tars-live-listen" class="liquid-switch" role="switch" aria-checked="false" tabindex="0" onclick="toggleLiveVoiceListen()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleLiveVoiceListen();}" title="Toggle live listening (continuous dialogue vs wake word)">
+            <span class="liquid-switch-thumb"></span>
+          </div>
+        </div>
+
+        <div class="system-readout-row">
+          <span class="system-readout-label">Microphone</span>
+          <div id="switch-tars-mic" class="liquid-switch" role="switch" aria-checked="true" tabindex="0" onclick="toggleTerminalMicrophone()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTerminalMicrophone();}" title="Toggle terminal microphone ON/OFF">
+            <span class="liquid-switch-thumb"></span>
+          </div>
+        </div>
+
+        <div class="system-readout-row">
+          <span class="system-readout-label">Assistant speech</span>
+          <button id="btn-tars-interrupt" class="tars-inline-btn" onclick="interruptAssistant()" title="Stop current speech and response">
+            <svg class="icon-svg" style="width:11px; height:11px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+            </svg>
+            <span>STOP SPEAKING</span>
+          </button>
+        </div>
+
+        <div class="system-readout-row">
+          <span class="system-readout-label">Visual engine</span>
+          <button id="tars-mode-toggle" class="tars-inline-btn" title="Toggle 2D Reactor / 3D Particle Orb">
+            <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24">
+              <polygon points="12 2 2 7 12 12 22 7 12 2" />
+              <polyline points="2 17 12 22 22 17" />
+              <polyline points="2 12 12 17 22 12" />
+            </svg>
+            <span id="tars-mode-text">2D CORE</span>
+          </button>
+        </div>
+
+        <div class="system-readout-row">
+          <span class="system-readout-label">Ambient standby</span>
+          <button id="btn-tars-standby-toggle" class="tars-inline-btn" onclick="showIosStandby()" title="Enter iOS Standby Mode">
+            <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span>STANDBY</span>
+          </button>
+        </div>
+
+        <div class="system-readout-row">
+          <span class="system-readout-label">System power</span>
+          <button id="tars-power-toggle" class="tars-inline-btn tars-power-on" onclick="toggleSystemPower()" title="Power On / Off Assistant Core">
+            <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+              <line x1="12" y1="2" x2="12" y2="12" />
+            </svg>
+            <span id="tars-power-text">ONLINE</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>

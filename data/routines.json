@@ -1,0 +1,43 @@
+{
+  "good_morning": {
+    "name": "Good Morning",
+    "trigger_phrases": [
+      "good morning routine",
+      "start my day",
+      "morning routine"
+    ],
+    "description": "Greets user, reports time and active reminders.",
+    "theme": "light"
+  },
+  "bedtime": {
+    "name": "Bedtime / Goodnight",
+    "trigger_phrases": [
+      "bedtime routine",
+      "goodnight routine",
+      "going to sleep"
+    ],
+    "description": "Wishes goodnight, ensures alarms are active.",
+    "theme": "midnight"
+  },
+  "focus": {
+    "name": "Focus Mode",
+    "trigger_phrases": [
+      "focus mode",
+      "start focus session",
+      "study routine"
+    ],
+    "description": "Sets a 25-minute timer and enables focus theme.",
+    "theme": "emerald",
+    "timer_minutes": 25
+  },
+  "movie_time": {
+    "name": "Movie Time",
+    "trigger_phrases": [
+      "movie time",
+      "movie mode",
+      "start movie"
+    ],
+    "description": "Sets cinematic ambient state and dark theme.",
+    "theme": "cyberpunk"
+  }
+}

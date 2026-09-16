@@ -1,0 +1,85 @@
+<!-- ==========================================================================
+     LIVE TERMINAL UI MODAL DIALOG
+     macOS-style Liquid Glass Terminal streaming real-time console stdout & events
+     Zero Unicode Emojis in buttons — 100% Inline Lucide SVGs
+     ========================================================================== -->
+<div id="terminal-modal-dialog" class="dialog-overlay" onclick="if(event.target===this) toggleTerminalModal(false)">
+  <div class="terminal-modal-box">
+    
+    <!-- macOS Terminal Header Bar -->
+    <div class="terminal-modal-header">
+      <div class="terminal-window-dots">
+        <span class="t-dot t-dot-red" onclick="toggleTerminalModal(false)" title="Close Terminal"></span>
+        <span class="t-dot t-dot-amber" onclick="toggleTerminalModal(false)" title="Minimize"></span>
+        <span class="t-dot t-dot-green" onclick="toggleTerminalFullscreen()" title="Maximize / Fullscreen"></span>
+      </div>
+
+      <div class="terminal-window-title">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+          <polyline points="4 17 10 11 4 5"/>
+          <line x1="12" x2="20" y1="19" y2="19"/>
+        </svg>
+        <span id="terminal-modal-title-text">nova@smarthome: ~ (live stream)</span>
+      </div>
+
+      <div class="terminal-header-actions">
+        <!-- Filter Selector -->
+        <select id="terminal-log-filter" class="terminal-filter-select" onchange="filterTerminalLogs(this.value)">
+          <option value="all">All Logs</option>
+          <option value="voice">Voice Only (Heard/Nova)</option>
+          <option value="system">System & Power</option>
+          <option value="error">Errors Only</option>
+        </select>
+
+        <!-- Auto-scroll Toggle -->
+        <button type="button" id="btn-terminal-autoscroll" class="terminal-action-btn active" onclick="toggleTerminalAutoScroll()" title="Toggle Auto-Scroll">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+          <span>Auto-Scroll</span>
+        </button>
+
+        <!-- Clear Logs Button -->
+        <button type="button" class="terminal-action-btn" onclick="clearTerminalLogs()" title="Clear Terminal Buffer">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          <span>Clear</span>
+        </button>
+
+        <!-- Close X Button -->
+        <button type="button" class="drawer-close-btn" onclick="toggleTerminalModal(false)" title="Close (Esc)">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Terminal Screen Body -->
+    <div id="terminal-screen-output" class="terminal-screen-output">
+      <div class="terminal-boot-banner">
+        <span class="t-cyan">🏡 HOME AI ASSISTANT — LIVE CONSOLE STREAM</span><br>
+        <span class="t-muted">Brain: browser-controlled backend · STT: Faster-Whisper · TTS: Web Speech Synthesis</span><br>
+        <span class="t-dim">Connected to local instance at http://localhost:5050 · Streaming stdout in real time...</span>
+      </div>
+      <div id="terminal-log-entries" class="terminal-log-entries"></div>
+    </div>
+
+    <!-- Terminal Command Prompt Input Bar -->
+    <form id="terminal-cli-form" class="terminal-cli-bar" onsubmit="submitTerminalCommand(event)">
+      <span class="terminal-prompt-prefix">nova@smarthome:~$</span>
+      <input type="text" id="terminal-cli-input" class="terminal-cli-input" placeholder="Type a voice command or question (e.g. 'what is the time', 'switch theme to emerald')..." autocomplete="off" />
+      <button type="submit" class="terminal-send-btn" title="Execute Command">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+        <span>Send</span>
+      </button>
+    </form>
+
+  </div>
+</div>

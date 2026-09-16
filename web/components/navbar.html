@@ -1,0 +1,94 @@
+<!-- ==========================================================================
+     TARS TOP STATUS & NAVIGATION STRIP
+     Brand (Left) + Centered Navigation Buttons + Theme & User Controls (Right)
+     ========================================================================== -->
+<header class="tars-strip">
+  <!-- Left: Brand -->
+  <div class="tars-strip-left">
+    <div class="tars-brand tars-mono">
+      <b id="brand-assistant-name">NOVA</b>
+      <span>· PERSONAL AI</span>
+    </div>
+  </div>
+
+  <!-- Center: Main Navigation Buttons (Centered) -->
+  <nav class="tars-nav-cluster tars-nav-center" aria-label="Main Navigation">
+    
+    <!-- 1. AI Voice Hub (Default) -->
+    <button id="nav-btn-livedisplay" class="tars-top-nav-btn active"
+      onclick="showTab('tab-livedisplay', this); setRailActive(this);" title="AI Voice Hub">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+        <line x1="12" x2="12" y1="19" y2="22" />
+      </svg>
+      <span>Voice Hub</span>
+    </button>
+
+    <!-- 2. Smart Home & Devices -->
+    <button id="nav-btn-home" class="tars-top-nav-btn"
+      onclick="showTab('tab-overview', this); setRailActive(this);" title="Smart Home Devices">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
+      </svg>
+      <span>Smart Home</span>
+    </button>
+
+    <!-- 3. AI Chat & Telemetry Console -->
+    <button id="nav-btn-chat" class="tars-top-nav-btn"
+      onclick="showTab('tab-chat', this); setRailActive(this);" title="AI Chat Console">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+      <span>Chat</span>
+    </button>
+
+    <!-- 4. Configuration & Hardware -->
+    <button id="nav-btn-config" class="tars-top-nav-btn"
+      onclick="showTab('tab-config', this); setRailActive(this);" title="System Settings">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+      </svg>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+  <!-- Right: Theme & User Controls -->
+  <div class="tars-strip-right">
+    <!-- Live Terminal UI Modal Toggle -->
+    <button type="button" id="btn-tars-terminal-toggle" class="tars-theme-btn"
+      onclick="toggleTerminalModal(true)" aria-label="Open Live Terminal View" title="Open Live Terminal View">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+        <polyline points="4 17 10 11 4 5"/>
+        <line x1="12" x2="20" y1="19" y2="19"/>
+      </svg>
+    </button>
+
+    <!-- Fullscreen Mode Toggle -->
+    <button type="button" id="btn-tars-fullscreen-toggle" class="tars-theme-btn"
+      onclick="toggleKioskMode()" aria-label="Toggle Fullscreen" title="Toggle Fullscreen Display (F / Esc)">
+      <svg id="icon-fullscreen-enter" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+      </svg>
+      <svg id="icon-fullscreen-exit" class="icon-svg icon-svg-sm" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+      </svg>
+    </button>
+
+    <!-- Dark / Light Mode Toggle -->
+    <button type="button" id="btn-tars-theme-toggle" class="tars-theme-btn"
+      onclick="toggleTheme()" aria-label="Toggle dark and light mode" title="Toggle Dark / Light Theme">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    </button>
+
+    <!-- User Profile Avatar -->
+    <button id="nav-btn-user" class="tars-user-top-btn"
+      onclick="showTab('tab-config', document.getElementById('nav-btn-config')); switchSettingsTab('about-me');" title="User Profile: Timilehin">
+      <span class="dock-avatar-badge">TL</span>
+    </button>
+  </div>
+</header>

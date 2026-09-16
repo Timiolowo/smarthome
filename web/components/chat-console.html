@@ -1,0 +1,76 @@
+<!-- ==========================================================================
+     CHAT CONSOLE COMPONENT
+     daisyUI Conversational Thread + Thinking Trace + Suggested Prompts + 100% SVGs
+     ========================================================================== -->
+<section id="tab-chat" class="section-card">
+  <div class="card card-spotlight" style="max-width:880px; margin:0 auto; height:calc(100vh - 180px); display:flex; flex-direction:column;">
+    
+    <!-- Chat Header -->
+    <div class="card-header" style="border-bottom:1px solid hsl(var(--border)); padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+      <div class="card-title-group">
+        <div class="card-title">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Direct Dialogue Console</span>
+        </div>
+        <div class="card-description">Interactive voice & text interface for agent tools, memory inspection, and assistant prompts.</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+        <!-- Live Listen Mode Button -->
+        <button id="btn-chat-live-listen" class="btn btn-primary btn-sm" onclick="toggleLiveVoiceListen()" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; border-radius:20px; transition:all 0.2s;" title="Control terminal live listening">
+          <span class="status-indicator-dot" id="live-listen-dot" style="background:#10b981;"></span>
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+          <span id="live-listen-label">Start Live Listening</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="interruptAssistant()" title="Stop Nova's current speech and response">
+          <span>Stop Speaking</span>
+        </button>
+        <div class="badge badge-success">
+          <span class="status-indicator-dot pulse"></span>
+          <span>Online</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suggested Quick Action Chips -->
+    <div style="padding:0.75rem 1.25rem 0; display:flex; flex-wrap:wrap; gap:0.4rem;">
+      <button class="btn btn-secondary btn-sm" onclick="insertPrompt('What power source are we using right now?')">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span>Check Power State</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="insertPrompt('Set an alarm for 15 minutes')">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Set 15m Alarm</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="insertPrompt('What do you remember about me?')">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/></svg>
+        <span>Recall Memory</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="insertPrompt('Tell me a short story from the beginning to the end')">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+        <span>Storytelling</span>
+      </button>
+    </div>
+
+    <!-- Chat Stream Scroll Area -->
+    <div id="chat-msgs" class="card-content scroll-area chat-thread" style="flex:1; overflow-y:auto; padding:1.25rem;">
+      <div class="chat-bubble-wrap assistant">
+        <div class="chat-bubble">Hello Timilehin. I am ready to assist with alarms, smart home devices, memory facts, or questions. You can speak or type below.</div>
+        <div class="chat-time">Ready</div>
+      </div>
+    </div>
+
+    <!-- Chat Input Bar with Live Mic Button -->
+    <div class="card-footer" style="padding:1rem 1.25rem;">
+      <div style="display:flex; width:100%; gap:0.5rem; align-items:center;">
+        <button id="btn-chat-mic" class="btn btn-secondary" onclick="toggleLiveVoiceListen()" style="padding:0 0.75rem; border-radius:var(--radius); min-width:42px; height:42px; display:flex; align-items:center; justify-content:center;" title="Start or stop the terminal microphone conversation">
+          <svg id="chat-mic-svg" class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+        </button>
+        <textarea id="chat-input" class="btn btn-outline" style="flex:1; text-align:left; resize:none; min-height:42px; border-radius:var(--radius); line-height:1.4;" placeholder="Control Live Listening above or type a message (Enter to send)..." rows="1" onkeydown="handlePromptKey(event)" oninput="autoResizeTextarea(this)"></textarea>
+        <button class="btn btn-primary" onclick="submitPrompt()" title="Send Message">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartHome Assistant — Setup Wizard</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/base.css"/>
+  <link rel="stylesheet" href="/css/setup.css"/>
+</head>
+<body class="setup-page">
+
+  <!-- Aceternity Dot Background -->
+  <div class="ambient-bg-dots"></div>
+
+  <div class="setup-container">
+    <!-- Header -->
+    <header class="setup-header">
+      <div class="brand-section">
+        <div class="brand-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="brand-title">
+          <h1>SmartHome AI Assistant</h1>
+          <p>Initial Setup & Hardware Calibration Wizard</p>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <!-- Dual-Mode Theme Toggle Pill -->
+        <div class="theme-toggle-pill">
+          <button id="btn-light" class="theme-toggle-btn" onclick="setTheme('light')" title="Switch to Light Mode">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          </button>
+          <button id="btn-dark" class="theme-toggle-btn active" onclick="setTheme('dark')" title="Switch to Dark Mode">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          </button>
+        </div>
+
+        <a href="/" class="btn btn-secondary btn-sm" title="Return to Control Dashboard">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span>Dashboard</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Stepper Navigation -->
+    <nav class="stepper-nav" aria-label="Setup Steps">
+      <button class="step-tab active" data-step="1">
+        <span class="step-num">1</span>
+        <span class="step-name">Profile & Persona</span>
+      </button>
+      <button class="step-tab" data-step="2">
+        <span class="step-num">2</span>
+        <span class="step-name">AI Brain & Voice</span>
+      </button>
+      <button class="step-tab" data-step="3">
+        <span class="step-num">3</span>
+        <span class="step-name">Hardware & Audio</span>
+      </button>
+      <button class="step-tab" data-step="4">
+        <span class="step-num">4</span>
+        <span class="step-name">Review & Launch</span>
+      </button>
+    </nav>
+
+    <!-- Main Step Body -->
+    <main class="setup-body">
+      
+      <!-- Step 1: Profile & Persona -->
+      <section class="step-panel active" data-step="1">
+        <div class="step-heading">
+          <h2>Personalize Your AI Assistant</h2>
+          <p>Tell the assistant who you are so it can greet you properly and remember relevant context about your routine.</p>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="input-user-name">
+              Your Name <span class="label-hint">How the AI addresses you</span>
+            </label>
+            <input type="text" id="input-user-name" class="form-input" placeholder="e.g. Timilehin" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-assistant-name">
+              Assistant Name <span class="label-hint">Wake word & persona</span>
+            </label>
+            <input type="text" id="input-assistant-name" class="form-input" value="Nova" placeholder="e.g. Nova, Jarvis" />
+          </div>
+
+          <div class="form-group-full form-group">
+            <label class="form-label" for="input-greeting">
+              Custom Greeting Message <span class="label-hint">Spoken when you arrive home</span>
+            </label>
+            <input type="text" id="input-greeting" class="form-input" placeholder="e.g. Welcome home, Timilehin. How was your day?" />
+          </div>
+
+          <div class="form-group-full form-group">
+            <label class="form-label" for="input-bio-notes">
+              Personal Bio & Habits <span class="label-hint">Seeded into long-term memory</span>
+            </label>
+            <textarea id="input-bio-notes" class="form-textarea" placeholder="Tell the assistant about yourself (e.g. 'I work in actuarial data analytics. I like concise updates in the morning.')"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: AI Brain & Voice Engine -->
+      <section class="step-panel" data-step="2">
+        <div class="step-heading">
+          <h2>AI Brain & Speech Models</h2>
+          <p>Choose between running 100% offline private local models, or connecting a cloud AI API key.</p>
+        </div>
+
+        <div class="selection-grid">
+          <div class="select-card selected" data-mode="local">
+            <div class="select-card-header">
+              <span class="select-card-icon">
+                <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </span>
+              <span class="badge-tag badge-recommended">Private & Offline</span>
+            </div>
+            <div class="select-card-title">Local Offline AI (Recommended)</div>
+            <div class="select-card-desc">
+              Zero cloud latency, 100% private. Runs Llama 3.2, Faster-Whisper, and Piper TTS directly on your computer's CPU/GPU.
+            </div>
+          </div>
+
+          <div class="select-card" data-mode="cloud">
+            <div class="select-card-header">
+              <span class="select-card-icon">
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+              </span>
+              <span class="badge-tag badge-cloud">Cloud API</span>
+            </div>
+            <div class="select-card-title">Cloud AI Fallback</div>
+            <div class="select-card-desc">
+              Ideal for low-power devices with less than 4GB RAM. Uses OpenAI, Google Gemini, or Groq API keys.
+            </div>
+          </div>
+        </div>
+
+        <!-- Local Models Status & Downloader -->
+        <div id="local-models-section">
+          <!-- System Hardware Diagnostics Banner -->
+          <div class="system-diagnostics-card" id="system-diagnostics-banner">
+            <div class="diagnostics-header">
+              <span style="display:flex; align-items:center; gap:6px;">
+                <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                System Diagnostics
+              </span>
+              <span class="diagnostics-specs" id="system-specs-summary">Detecting hardware...</span>
+            </div>
+            <div class="diagnostics-reason" id="system-specs-reason">
+              Analyzing system RAM and CPU capabilities...
+            </div>
+          </div>
+
+          <div style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">
+            1. Select Local LLM Brain:
+          </div>
+
+          <!-- LLM Tier Cards -->
+          <div class="llm-tier-grid">
+            <div class="llm-tier-card selected" data-llm="llm_3b" id="card-llm-3b">
+              <div class="tier-card-header">
+                <span class="tier-title" style="display:flex; align-items:center; gap:6px;">
+                  <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg>
+                  Llama 3.2 3B Instruct
+                </span>
+                <span class="badge-tag badge-recommended" id="badge-llm-3b">Recommended</span>
+              </div>
+              <div class="tier-tags">
+                <span class="tier-tag">8 GB+ RAM</span>
+                <span class="tier-tag">~2.0 GB Download</span>
+              </div>
+              <div class="tier-desc">
+                High-accuracy reasoning, counting, smart home tool calling, and natural long-form conversation.
+              </div>
+              <div class="tier-status" id="status-llm-3b">
+                <span class="model-status-tag missing">Checking...</span>
+              </div>
+            </div>
+
+            <div class="llm-tier-card" data-llm="llm_1b" id="card-llm-1b">
+              <div class="tier-card-header">
+                <span class="tier-title" style="display:flex; align-items:center; gap:6px;">
+                  <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  Llama 3.2 1B Instruct
+                </span>
+                <span class="badge-tag badge-cloud" id="badge-llm-1b" style="display:none;">Lightweight</span>
+              </div>
+              <div class="tier-tags">
+                <span class="tier-tag">4 GB+ RAM</span>
+                <span class="tier-tag">~750 MB Download</span>
+              </div>
+              <div class="tier-desc">
+                Ultra-fast inference with low RAM footprint. Ideal for older laptops or Raspberry Pi 4/5.
+              </div>
+              <div class="tier-status" id="status-llm-1b">
+                <span class="model-status-tag missing">Checking...</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size: 13px; font-weight: 600; margin-bottom: 10px; margin-top: 18px;">
+            2. Offline Voice & Audio Models (Included):
+          </div>
+
+          <!-- Voice Models List -->
+          <div class="models-list" id="models-list-container">
+            <!-- Populated via JS -->
+          </div>
+
+          <!-- Live Progress Box -->
+          <div class="download-progress-box" id="download-progress-box">
+            <div class="progress-header">
+              <span class="file-label" id="progress-file-label">Initializing Download...</span>
+              <span class="progress-pct" id="progress-percentage">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="progress-bar-fill"></div>
+            </div>
+            <div class="progress-stats">
+              <span id="progress-bytes">0 / 0 MB</span>
+              <span id="progress-speed">0.0 Mbps</span>
+              <span id="progress-eta">ETA: Calculating...</span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+            <button type="button" class="btn btn-primary" id="btn-download-all">
+              Download Models (1-Click)
+            </button>
+          </div>
+        </div>
+
+        <!-- Cloud API Section -->
+        <div id="cloud-api-section" style="display: none;">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="select-cloud-provider">Cloud Provider</label>
+              <select id="select-cloud-provider" class="form-select">
+                <option value="gemini">Google Gemini (Recommended Cloud)</option>
+                <option value="openai">OpenAI (GPT-4o, GPT-4o-mini)</option>
+                <option value="groq">Groq Cloud (Ultra-Fast Llama 3.3)</option>
+                <option value="anthropic">Anthropic Claude (Claude 3.5 Sonnet)</option>
+                <option value="deepseek">DeepSeek (V3 / R1)</option>
+                <option value="custom">Custom / OpenAI-Compatible (OpenRouter, Ollama, LM Studio)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-cloud-key">API Key</label>
+              <div style="display: flex; gap: 8px;">
+                <input type="password" id="input-cloud-key" class="form-input" placeholder="Paste your API key here..." style="flex: 1;" />
+                <button type="button" class="btn btn-secondary" id="btn-toggle-key-visibility" title="Toggle API Key Visibility" style="padding: 0 10px; display: flex; align-items: center; justify-content: center;">
+                  <svg id="icon-eye" class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="input-cloud-model">Model Name <span class="label-hint">Optional (Defaults to best model)</span></label>
+              <input type="text" id="input-cloud-model" class="form-input" placeholder="Leave empty for default" />
+            </div>
+            <div class="form-group" id="group-cloud-base-url" style="display: none;">
+              <label class="form-label" for="input-cloud-base-url">Base URL</label>
+              <input type="text" id="input-cloud-base-url" class="form-input" placeholder="e.g. http://localhost:11434" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 3: Hardware & Audio Calibration -->
+      <section class="step-panel" data-step="3">
+        <div class="step-heading">
+          <h2>Audio & Presence Calibration</h2>
+          <p>Select your microphone and test audio input levels to ensure seamless voice recognition.</p>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="select-mic-device">
+              Microphone Input Device
+            </label>
+            <select id="select-mic-device" class="form-select">
+              <option value="0">Default System Microphone</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="justify-content: flex-end;">
+            <button type="button" class="btn btn-secondary" id="btn-test-mic" style="width: 100%;">
+              <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+              <span>Test Microphone Input</span>
+            </button>
+          </div>
+
+          <div class="form-group-full">
+            <div class="meter-wrapper">
+              <div class="meter-header">
+                <span>Microphone Level Visualizer</span>
+                <span id="meter-value">0%</span>
+              </div>
+              <div class="meter-track">
+                <div class="meter-bar" id="meter-bar"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group-full">
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <h4>Audio Chime Feedback</h4>
+                <p>Plays a soft pleasant sound when the assistant starts listening.</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 14px;">
+                <button type="button" class="btn btn-secondary" id="btn-test-chime" style="padding: 8px 14px; font-size: 13px;">
+                  <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                  <span>Test Chime</span>
+                </button>
+                <div class="switch" role="switch" id="toggle-ready-chime" aria-checked="false" onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked')==='true'?'false':'true')">
+                  <span class="switch-thumb"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group-full form-group" style="margin-top: 10px;">
+            <label class="form-label" for="input-phone-ip">
+              Presence Detection (Phone IP) <span class="label-hint">Optional</span>
+            </label>
+            <input type="text" id="input-phone-ip" class="form-input" placeholder="e.g. 192.168.1.150 (Leave blank if not needed)" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 4: Review & Launch -->
+      <section class="step-panel" data-step="4">
+        <div class="step-heading">
+          <h2>Ready to Launch!</h2>
+          <p>Review your configuration summary before starting your assistant.</p>
+        </div>
+
+        <div class="review-grid">
+          <div class="review-card">
+            <div class="review-card-title">User Profile</div>
+            <div class="review-card-val" id="review-user-name">--</div>
+            <div class="review-card-sub" id="review-greeting">--</div>
+          </div>
+
+          <div class="review-card">
+            <div class="review-card-title">Assistant Wake Name</div>
+            <div class="review-card-val" id="review-assistant-name">Nova</div>
+            <div class="review-card-sub">Triggers on wake words & name</div>
+          </div>
+
+          <div class="review-card">
+            <div class="review-card-title">AI Engine</div>
+            <div class="review-card-val" id="review-ai-mode">Local Offline AI</div>
+            <div class="review-card-sub">Private & Self-Contained</div>
+          </div>
+
+          <div class="review-card">
+            <div class="review-card-title">Hardware Setup</div>
+            <div class="review-card-val" id="review-mic-device">Default Mic</div>
+            <div class="review-card-sub" id="review-presence">Presence Tracking Active</div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer Navigation -->
+    <footer class="setup-footer">
+      <button type="button" class="btn btn-secondary" id="btn-prev" style="display: none;">
+        Back
+      </button>
+      <div style="margin-left: auto; display: flex; gap: 12px;">
+        <button type="button" class="btn btn-primary" id="btn-next">
+          Next Step
+        </button>
+        <button type="button" class="btn btn-primary" id="btn-launch-assistant" style="display: none;">
+          Save & Launch Assistant
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Theme Engine for Setup Wizard
+    function setTheme(mode) {
+      const btnDark = document.getElementById('btn-dark');
+      const btnLight = document.getElementById('btn-light');
+      if (mode === 'light') {
+        document.documentElement.classList.remove('dark');
+        if (btnLight) btnLight.classList.add('active');
+        if (btnDark) btnDark.classList.remove('active');
+        localStorage.setItem('theme', 'light');
+      } else {
+        document.documentElement.classList.add('dark');
+        if (btnDark) btnDark.classList.add('active');
+        if (btnLight) btnLight.classList.remove('active');
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      setTheme('light');
+    } else {
+      setTheme('dark');
+    }
+  </script>
+  <script src="/js/setup.js"></script>
+</body>
+</html>

@@ -1,0 +1,435 @@
+<!-- ==========================================================================
+     SMARTHOME MODULAR SETTINGS & PROFILE COMPONENT
+     5 Dedicated Sub-Tabs: About Me · About AI · Brain & LLMs · Voice & Audio · Hardware & Power
+     100% Consistent Design System & Zero Emojis
+     ========================================================================== -->
+<section id="tab-config" class="section-card">
+  <div class="settings-container">
+
+    <!-- Hero Header & Active Engine Indicator -->
+    <div class="settings-hero-header">
+      <div class="settings-header-left">
+        <div class="settings-header-title">
+          <svg class="icon-svg" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          <span>System & Assistant Settings</span>
+        </div>
+        <div class="settings-header-desc">
+          Manage resident profile, AI persona, reasoning models, voice synthesis, and hardware controls.
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:0.6rem;">
+        <span id="cfg-active-provider-badge" class="badge badge-outline" style="font-family:'JetBrains Mono', monospace; font-size:0.75rem;">Loading Engine...</span>
+      </div>
+    </div>
+
+    <!-- Sub-Navigation Bar (Tabs on Top) -->
+    <nav class="settings-subnav" aria-label="Settings Categories">
+      <button type="button" class="settings-subnav-btn active" onclick="switchSettingsTab('about-me', this)">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>About Me</span>
+      </button>
+
+      <button type="button" class="settings-subnav-btn" onclick="switchSettingsTab('about-ai', this)">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+        <span>About AI</span>
+      </button>
+
+      <button type="button" class="settings-subnav-btn" onclick="switchSettingsTab('llm-models', this)">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg>
+        <span>Brain & LLMs</span>
+      </button>
+
+      <button type="button" class="settings-subnav-btn" onclick="switchSettingsTab('voice-audio', this)">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+        <span>Voice & Audio</span>
+      </button>
+
+      <button type="button" class="settings-subnav-btn" onclick="switchSettingsTab('hardware-power', this)">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span>Hardware & Power</span>
+      </button>
+    </nav>
+
+    <!-- Master Settings Form -->
+    <form id="config-form" onsubmit="saveConfig(event)" style="display:flex; flex-direction:column; gap:1.5rem;">
+
+      <!-- ==================================================================== -->
+      <!-- TAB 1: ABOUT ME (RESIDENT IDENTITY & PROFILE)                        -->
+      <!-- ==================================================================== -->
+      <div id="settings-panel-about-me" class="settings-panel active">
+        <div class="settings-cards-grid">
+          
+          <!-- Column 1: Identity & Location -->
+          <div class="settings-col">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <span>Resident Identity</span>
+                </div>
+              </div>
+              <div class="settings-card-body">
+                <div class="settings-field">
+                  <label class="settings-label" for="cfg-username">Your Name</label>
+                  <input type="text" id="cfg-username" class="settings-input" placeholder="e.g. Timilehin" required />
+                  <span class="settings-hint">How the AI assistant addresses you across voice and chat interactions.</span>
+                </div>
+
+                <div class="settings-field">
+                  <label class="settings-label">Household Role</label>
+                  <div class="settings-input" style="color:hsl(var(--muted-foreground)); background:hsl(var(--secondary) / 0.3);">
+                    Owner / Primary Resident
+                  </div>
+                </div>
+
+                <div class="settings-field">
+                  <label class="settings-label">Location & Timezone</label>
+                  <div style="display:flex; gap:0.5rem; align-items:center;">
+                    <div id="prof-location-badge" class="settings-input" style="flex:1; font-size:0.85rem;">Not detected</div>
+                    <div id="prof-timezone-badge" class="settings-input" style="flex:1; font-family:'JetBrains Mono', monospace; font-size:0.75rem;">UTC</div>
+                    <button type="button" id="btn-detect-location" class="btn btn-outline btn-sm" onclick="requestLocationPermission()" style="white-space:nowrap; gap:0.35rem;">
+                      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                      <span id="btn-detect-location-text">Detect Location</span>
+                    </button>
+                  </div>
+                  <span id="location-permission-status" class="settings-hint">Click "Detect Location" to request browser geolocation permission.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Personal Habits, Bio & Media Tastes -->
+          <div class="settings-col">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <svg class="icon-svg" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span>Personal Bio & Routine Habits</span>
+                </div>
+              </div>
+              <div class="settings-card-body">
+                <div class="settings-field">
+                  <label class="settings-label" for="cfg-user-bio">Background, Routine & Habits</label>
+                  <textarea id="cfg-user-bio" class="settings-input" style="min-height:95px; resize:vertical; line-height:1.45;" placeholder="e.g. I work as an actuarial data analyst. I like concise morning updates and high-focus deep work sessions."></textarea>
+                  <span class="settings-hint">Seeded into long-term memory for hyper-personalized responses.</span>
+                </div>
+
+                <div class="settings-field">
+                  <label class="settings-label">Media & Entertainment Preferences</label>
+                  <div id="prof-series-chips" class="tag-chip-group" style="margin-bottom:0.6rem;"></div>
+                  <div id="prof-genre-chips" class="tag-chip-group"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ==================================================================== -->
+      <!-- TAB 2: ABOUT AI (PERSONA, PRIVACY & DIRECTIVES)                     -->
+      <!-- ==================================================================== -->
+      <div id="settings-panel-about-ai" class="settings-panel">
+        <div class="settings-cards-grid">
+          
+          <!-- Column 1: Persona & Wake Name -->
+          <div class="settings-col">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <svg class="icon-svg" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                  <span>AI Assistant Persona</span>
+                </div>
+              </div>
+              <div class="settings-card-body">
+                <div class="settings-field">
+                  <label class="settings-label" for="cfg-assistant">Assistant Name</label>
+                  <input type="text" id="cfg-assistant" class="settings-input" placeholder="e.g. Nova, Jarvis, TARS" required />
+                  <span class="settings-hint">Wake word & name the AI refers to itself as in speech and top bar.</span>
+                </div>
+
+                <div class="settings-field">
+                  <label class="settings-label" for="cfg-greeting">Arrival Greeting Message</label>
+                  <input type="text" id="cfg-greeting" class="settings-input" placeholder="e.g. Welcome home, Timilehin. How was your day?" />
+                  <span class="settings-hint">Spoken automatically when your device connects to local Wi-Fi.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Privacy & Behavioral Ground Rules -->
+          <div class="settings-col">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <span>100% On-Device Privacy Shield</span>
+                </div>
+              </div>
+              <div class="settings-card-body">
+                <div class="callout-box" style="padding:0.75rem 0.9rem; background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.2); border-radius:8px; font-size:0.8rem; line-height:1.45;">
+                  <strong style="color:#22c55e;">Zero Cloud Telemetry:</strong>
+                  Audio streams, voice recordings, and conversation memory are kept 100% locally on your machine and never transmitted to external analytics.
+                </div>
+                <div class="callout-box" style="margin-top:0.75rem; padding:0.75rem 0.9rem; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.2); border-radius:8px; font-size:0.8rem; line-height:1.45;">
+                  <strong style="color:var(--accent, #38bdf8);">Concise Natural Ergonomics:</strong>
+                  Spoken responses prioritize succinct clarity for voice ergonomics, expanding to longer narratives when requested.
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ==================================================================== -->
+      <!-- TAB 3: BRAIN & LLM MODELS (LOCAL / CLOUD)                            -->
+      <!-- ==================================================================== -->
+      <div id="settings-panel-llm-models" class="settings-panel">
+        <div class="settings-cards-grid">
+          
+          <!-- Column 1: Active LLM Provider Selection -->
+          <div class="settings-col">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg>
+                  <span>Reasoning Brain & Engine</span>
+                </div>
+              </div>
+              <div class="settings-card-body">
+                <div class="settings-field">
+                  <label class="settings-label" for="cfg-llm-provider">Active LLM Provider</label>
+                  <select id="cfg-llm-provider" class="settings-select" onchange="handleLLMProviderChange()">
+                    <option value="local">Local Offline Engine (Llama 3.2 GGUF)</option>
+                    <option value="gemini">Google Gemini (Recommended Cloud)</option>
+                    <option value="groq">Groq Cloud (Ultra-Fast Llama 3.3)</option>
+                    <option value="openai">OpenAI (GPT-4o, GPT-4o-mini)</option>
+                    <option value="anthropic">Anthropic Claude (Claude 3.5 Sonnet)</option>
+                    <option value="deepseek">DeepSeek (V3 / R1)</option>
+                    <option value="custom">Custom / OpenAI-Compatible (Ollama, LM Studio)</option>
+                  </select>
+                  <span class="settings-hint">Select provider. Local engine runs 100% privately without internet.</span>
+                </div>
+
+                <!-- Dynamic Cloud & Custom Fields -->
+                <div id="cfg-cloud-fields" style="display:none; flex-direction:column; gap:1.15rem;">
+                  <div class="settings-field">
+                    <label class="settings-label" for="cfg-llm-model">Model Identifier</label>
+                    <input type="text" id="cfg-llm-model" class="settings-input" style="font-family:'JetBrains Mono', monospace;" placeholder="gemini-2.5-flash" />
+                    <span class="settings-hint">Exact model tag passed to provider API.</span>
+                  </div>
+
+                  <div class="settings-field">
+                    <label class="settings-label" for="cfg-llm-api-key">API Key</label>
+                    <div class="settings-input-wrap">
+                      <input type="password" id="cfg-llm-api-key" class="settings-input" style="font-family:'JetBrains Mono', monospace;" placeholder="Paste API Key or leave blank to use .env" autocomplete="off" />
+                      <button type="button" class="settings-input-eye-btn" onclick="toggleApiKeyVisibility()" title="Show/Hide API Key">
+                        <svg id="cfg-eye-icon" class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                      </button>
+                    </div>
+                    <span class="settings-hint">Stored securely on your machine in <code>config.json</code>.</span>
+                  </div>
+
+                  <div id="cfg-base-url-group" class="settings-field" style="display:none;">
+                    <label class="settings-label" for="cfg-llm-base-url">Endpoint Base URL</label>
+                    <input type="text" id="cfg-llm-base-url" class="settings-input" style="font-family:'JetBrains Mono', monospace;" placeholder="http://localhost:11434/v1" />
+                    <span class="settings-hint">Custom OpenAI-compatible HTTP base URL (e.g. Ollama or LM Studio).</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Local Hardware Specs & Diagnostics -->
+          <div class="settings-col">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <svg class="icon-svg" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                  <span>Hardware & Model Diagnostics</span>
+                </div>
+              </div>
+              <div class="settings-card-body">
+                <div id="cfg-system-specs" style="font-size:0.85rem; color:hsl(var(--foreground)); margin-bottom:0.5rem;">
+                  Detecting system hardware capabilities...
+                </div>
+                <div class="callout-box" style="padding:0.75rem 0.9rem; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.2); border-radius:8px; font-size:0.8rem; line-height:1.45;">
+                  <strong>Local Models:</strong> Llama 3.2 3B (High accuracy reasoning & tools) · Llama 3.2 1B (Ultra-fast lightweight).
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ==================================================================== -->
+      <!-- TAB 4: VOICE & AUDIO (TTS, MIC, CHIME & WAKE COMMANDS)               -->
+      <!-- ==================================================================== -->
+      <div id="settings-panel-voice-audio" class="settings-panel">
+        <div class="settings-cards-grid">
+          
+          <!-- Column 1: Speech Output & Voice Selection -->
+          <div class="settings-col">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <svg class="icon-svg" viewBox="0 0 24 24">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg>
+                  <span>Voice & Speech Output (TTS)</span>
+                </div>
+              </div>
+              <div class="settings-card-body">
+                <div class="settings-field">
+                  <label class="settings-label" for="cfg-browser-voice">Browser AI Speech Voice</label>
+                  <div class="settings-voice-row">
+                    <select id="cfg-browser-voice" class="settings-select" style="flex:1;" onchange="handleVoiceSelectionChange(this.value)">
+                      <option value="">Auto-Detect Best Natural Voice (Samantha / Siri)</option>
+                    </select>
+                    <button type="button" class="settings-test-btn" onclick="testSelectedVoice()">
+                      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                      </svg>
+                      <span>Test Voice</span>
+                    </button>
+                  </div>
+                  <span class="settings-hint">High-naturality Web Speech Synthesis voice used for spoken answers.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Microphone Input & Wake Chime -->
+          <div class="settings-col">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <svg class="icon-svg" viewBox="0 0 24 24">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" x2="12" y1="19" y2="22" />
+                  </svg>
+                  <span>Microphone & Audio Input</span>
+                </div>
+                <span id="cfg-mic-perm-badge" class="badge badge-outline" style="font-size:0.75rem;">Checking...</span>
+              </div>
+              <div class="settings-card-body">
+                <div class="settings-field">
+                  <label class="settings-label">Browser Microphone Access</label>
+                  <div style="display:flex; align-items:center; gap:0.65rem; margin-top:0.35rem; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-outline btn-sm" id="btn-request-mic-perm" onclick="requestMicPermission(true)">
+                      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                        <line x1="12" x2="12" y1="19" y2="22" />
+                      </svg>
+                      <span id="btn-request-mic-text">Request / Test Microphone</span>
+                    </button>
+                    <span id="cfg-mic-test-status" style="font-size:0.8rem; color:hsl(var(--muted-foreground));">Click to test live mic input</span>
+                  </div>
+                  <!-- Live Audio Level Meter -->
+                  <div id="cfg-mic-meter-wrap" style="display:none; width:100%; height:6px; background:rgba(255,255,255,0.08); border-radius:999px; overflow:hidden; margin-top:0.6rem;">
+                    <div id="cfg-mic-meter-bar" style="width:0%; height:100%; background:#22c55e; transition:width 0.08s ease;"></div>
+                  </div>
+                </div>
+
+                <div class="callout-box" style="margin-top:0.75rem; padding:0.75rem 0.9rem; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.18); border-radius:8px; font-size:0.8rem; line-height:1.45;">
+                  <strong>Terminal Voice Mode:</strong> When running headless in terminal, grant microphone access in macOS / Linux OS settings.
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ==================================================================== -->
+      <!-- TAB 5: HARDWARE, POWER & PROXIMITY                                   -->
+      <!-- ==================================================================== -->
+      <div id="settings-panel-hardware-power" class="settings-panel">
+        <div class="settings-cards-grid">
+          
+          <!-- Column 1: Presence Detection & Proximity -->
+          <div class="settings-col">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <svg class="icon-svg" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+                  <span>Presence Tracking & Hardware</span>
+                </div>
+              </div>
+              <div class="settings-card-body">
+                <div class="settings-field">
+                  <label class="settings-label" for="cfg-macs">Tracked Device MAC Addresses</label>
+                  <input type="text" id="cfg-macs" class="settings-input" style="font-family:'JetBrains Mono', monospace;" placeholder="e.g. aa:bb:cc:dd:ee:ff, 12:34:56:78:9a:bc" />
+                  <span class="settings-hint">Comma-separated MAC addresses used for arrival proximity detection.</span>
+                </div>
+
+                <div class="settings-field">
+                  <label class="settings-label" for="cfg-phone-ip">Phone Target IP</label>
+                  <input type="text" id="cfg-phone-ip" class="settings-input" style="font-family:'JetBrains Mono', monospace;" placeholder="e.g. 192.168.1.150" />
+                  <span class="settings-hint">Pinged over local Wi-Fi to verify resident presence at home.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Inverter Rules & Initial Setup Link -->
+          <div class="settings-col">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">
+                  <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  <span>Power Management Guardrails</span>
+                </div>
+              </div>
+              <div class="settings-card-body">
+                <div class="callout-box" style="padding:0.75rem 0.9rem; background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.2); border-radius:8px; font-size:0.8rem; line-height:1.45;">
+                  <strong style="color:#22c55e;">Inverter Peak Protection:</strong>
+                  Heavy inductive appliances remain locked during battery backup mode to protect battery longevity.
+                </div>
+                <div class="callout-box" style="margin-top:0.75rem; padding:0.75rem 0.9rem; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.2); border-radius:8px; font-size:0.8rem; line-height:1.45;">
+                  <strong style="color:var(--accent, #38bdf8);">Critical Circuits Priority:</strong>
+                  Lighting, workstation routers, and cooling fans maintain 24/7 battery inverter supply.
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Persistent Save Bar & Setup Wizard Link -->
+      <div class="settings-save-bar">
+        <a href="/setup" class="settings-wizard-link">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+          </svg>
+          <span>Open Initial Setup Wizard</span>
+        </a>
+
+        <button type="submit" class="settings-save-btn">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>
+          <span>Save Settings</span>
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</section>

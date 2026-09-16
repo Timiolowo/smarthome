@@ -1,0 +1,326 @@
+/* ==========================================================================
+   iOS-INSPIRED STANDBY AMBIENT DISPLAY STYLES
+   Pixel-perfect Apple Landscape StandBy Mode (Analog Clock + Calendar)
+   ========================================================================== */
+
+.tars-ios-standby-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000000;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  animation: standbyFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  user-select: none;
+}
+
+@keyframes standbyFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.standby-widget-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: clamp(2rem, 5vw, 6rem);
+  width: 100%;
+  max-width: 1080px;
+  padding: 1.5rem 2.5rem;
+  box-sizing: border-box;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 1. LEFT WIDGET: ANALOG CLOCK                                               */
+/* -------------------------------------------------------------------------- */
+.standby-clock-widget {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.standby-analog-clock {
+  position: relative;
+  width: clamp(280px, 32vw, 380px);
+  height: clamp(280px, 32vw, 380px);
+  border-radius: 50%;
+  background: #000000;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+}
+
+.standby-dial-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.clock-num {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  fill: #ffffff;
+  dominant-baseline: central;
+}
+
+.clock-ticks-group line {
+  stroke: #52525b;
+  stroke-width: 1.6px;
+}
+
+.clock-ticks-group line.major-tick {
+  stroke: #e4e4e7;
+  stroke-width: 2.6px;
+}
+
+/* Hands centered with CSS transform-origin: 50% 100% */
+.standby-hand {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: 50% 100%;
+  border-radius: 9999px;
+  z-index: 6;
+}
+
+.standby-hour-hand {
+  width: clamp(7px, 0.9vw, 9px);
+  height: 28%;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.standby-min-hand {
+  width: clamp(4.5px, 0.6vw, 6px);
+  height: 42%;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.standby-sec-hand-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 8;
+  transform-origin: 50% 50%;
+}
+
+.standby-sec-line {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: 2.2px;
+  height: 46%;
+  transform: translateX(-50%);
+  background: #ff9500;
+  border-radius: 2px;
+}
+
+.standby-sec-tail {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2.2px;
+  height: 14%;
+  transform: translateX(-50%);
+  background: #ff9500;
+  border-radius: 2px;
+}
+
+.standby-center-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  background: #ff9500;
+  border: 2.5px solid #000000;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 2. RIGHT WIDGET: CALENDAR                                                  */
+/* -------------------------------------------------------------------------- */
+.standby-cal-widget {
+  width: clamp(280px, 32vw, 380px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+}
+
+.standby-cal-month-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  padding: 0 0.35rem;
+}
+
+.standby-cal-month-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
+  font-weight: 800;
+  color: #ff3b30;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.standby-cal-year-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+  font-size: clamp(1.15rem, 1.8vw, 1.6rem);
+  font-weight: 700;
+  color: #a1a1aa;
+  letter-spacing: 0.04em;
+}
+
+.standby-cal-days-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: clamp(0.85rem, 1.2vw, 1.05rem);
+  font-weight: 700;
+  color: #71717a;
+  margin-bottom: 0.75rem;
+}
+
+.standby-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: clamp(0.35rem, 0.8vw, 0.65rem) 0.25rem;
+  text-align: center;
+}
+
+.standby-cal-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(32px, 3.2vw, 42px);
+  height: clamp(32px, 3.2vw, 42px);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: clamp(0.95rem, 1.35vw, 1.25rem);
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 auto;
+  border-radius: 50%;
+  transition: all 150ms ease;
+}
+
+.standby-cal-cell.empty {
+  visibility: hidden;
+}
+
+.standby-cal-cell.today {
+  background: #ff3b30;
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 0 16px rgba(255, 59, 48, 0.6);
+}
+
+/* -------------------------------------------------------------------------- */
+/* 3. AMBIENT STATUS PILL (TOP & BOTTOM COMPATIBLE)                           */
+/* -------------------------------------------------------------------------- */
+.standby-top-pill {
+  position: absolute;
+  top: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+  color: #a1a1aa;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  z-index: 15;
+}
+
+.standby-bottom-pill {
+  position: absolute;
+  bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+  color: #a1a1aa;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  z-index: 15;
+}
+
+.standby-pill-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  animation: standbyDotPulse 2s infinite ease-in-out;
+}
+
+@keyframes standbyDotPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.standby-wake-corner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: 0.4rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.standby-wake-corner-btn:hover {
+  background: rgba(56, 189, 248, 0.3);
+  color: #ffffff;
+}
+
+@media (max-width: 680px) {
+  .standby-widget-container {
+    flex-direction: column;
+    gap: 2rem;
+  }
+}

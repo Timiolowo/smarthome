@@ -1,0 +1,61 @@
+<!-- ==========================================================================
+     iOS-INSPIRED STANDBY AMBIENT DISPLAY COMPONENT
+     Landscape Smart Display: Precision Analog Clock + Calendar Widget
+     ========================================================================== -->
+<div id="tars-ios-standby" class="tars-ios-standby-overlay" style="display: none;" onclick="hideIosStandby()" title="Tap anywhere to wake Nova">
+  <!-- Top Floating Ambient Indicator Pill -->
+  <div class="standby-top-pill" onclick="event.stopPropagation()">
+    <span class="standby-pill-pulse"></span>
+    <span id="standby-status-caption">WAITING FOR NOVA · SAY “HEY NOVA” OR CLICK TO WAKE</span>
+    <button type="button" class="standby-wake-corner-btn" onclick="hideIosStandby()" title="Wake display">
+      <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <span>WAKE</span>
+    </button>
+  </div>
+
+  <div class="standby-widget-container" onclick="event.stopPropagation()">
+    <!-- Left Widget: Analog Clock (Apple iOS Standby Clock) -->
+    <div class="standby-widget standby-clock-widget">
+      <div class="standby-analog-clock">
+        <!-- Static SVG Dial (60 Ticks + 12 Bold Numbers) -->
+        <svg class="standby-dial-svg" viewBox="0 0 320 320">
+          <g id="standby-clock-ticks" class="clock-ticks-group"></g>
+          <text x="160" y="44" class="clock-num" text-anchor="middle">12</text>
+          <text x="222" y="60" class="clock-num" text-anchor="middle">1</text>
+          <text x="264" y="104" class="clock-num" text-anchor="middle">2</text>
+          <text x="280" y="167" class="clock-num" text-anchor="middle">3</text>
+          <text x="264" y="228" class="clock-num" text-anchor="middle">4</text>
+          <text x="222" y="272" class="clock-num" text-anchor="middle">5</text>
+          <text x="160" y="288" class="clock-num" text-anchor="middle">6</text>
+          <text x="98" y="272" class="clock-num" text-anchor="middle">7</text>
+          <text x="56" y="228" class="clock-num" text-anchor="middle">8</text>
+          <text x="40" y="167" class="clock-num" text-anchor="middle">9</text>
+          <text x="56" y="104" class="clock-num" text-anchor="middle">10</text>
+          <text x="98" y="60" class="clock-num" text-anchor="middle">11</text>
+        </svg>
+        <!-- Hands as Centered HTML Elements (Rock-solid, never detach) -->
+        <div id="standby-hour-hand" class="standby-hand standby-hour-hand"></div>
+        <div id="standby-min-hand" class="standby-hand standby-min-hand"></div>
+        <div id="standby-sec-hand-wrap" class="standby-sec-hand-wrap">
+          <div class="standby-sec-line"></div>
+          <div class="standby-sec-tail"></div>
+        </div>
+        <div class="standby-center-dot"></div>
+      </div>
+    </div>
+
+    <!-- Right Widget: Calendar (Apple iOS Standby Calendar) -->
+    <div class="standby-widget standby-cal-widget">
+      <div class="standby-cal-month-row">
+        <span id="standby-cal-month" class="standby-cal-month-title">SEPTEMBER</span>
+        <span id="standby-cal-year" class="standby-cal-year-title">2026</span>
+      </div>
+      <div class="standby-cal-days-header">
+        <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+      </div>
+      <div id="standby-cal-grid" class="standby-cal-grid">
+        <!-- Populated dynamically by standby-controller.js -->
+      </div>
+    </div>
+  </div>
+</div>

@@ -6,7 +6,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
+.env
 # Large AI Model Binaries (downloaded via ./install.sh or ./download_models.sh)
 models/llm/*
 !models/llm/.gitkeep

@@ -1,0 +1,10 @@
+{
+  "name": "SmartHome Assistant",
+  "short_name": "SmartHome",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "orientation": "any",
+  "description": "Privacy-focused smart home assistant dashboard with real-time telemetry and voice HUD."
+}

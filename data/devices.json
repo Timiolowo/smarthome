@@ -1,0 +1,37 @@
+{
+  "lights": {
+    "name": "Smart Lights",
+    "category": "lighting",
+    "connected": false,
+    "status": "unconnected",
+    "description": "Smart LED bulbs / switches (Philips Hue, Zigbee, etc.)"
+  },
+  "ac": {
+    "name": "Air Conditioner / Climate",
+    "category": "climate",
+    "connected": false,
+    "status": "unconnected",
+    "description": "Smart thermostat or AC infrared controller"
+  },
+  "tv": {
+    "name": "Smart TV / Media Player",
+    "category": "entertainment",
+    "connected": false,
+    "status": "unconnected",
+    "description": "Apple TV, Android TV, HDMI-CEC or Smart TV switch"
+  },
+  "fans": {
+    "name": "Smart Fan",
+    "category": "climate",
+    "connected": false,
+    "status": "unconnected",
+    "description": "Smart plug / ceiling fan controller"
+  },
+  "plugs": {
+    "name": "Smart Plugs",
+    "category": "power",
+    "connected": false,
+    "status": "unconnected",
+    "description": "Smart power sockets"
+  }
+}

@@ -1,0 +1,169 @@
+<!-- ==========================================================================
+     RESIDENT DOSSIER COMPONENT (Identity, Preferences, Inverter Rules & Memory)
+     Aceternity Bento Grid + shadcn/ui Cards + 100% Lucide SVGs (Zero Emojis)
+     ========================================================================== -->
+<section id="tab-user-profile" class="section-card">
+  <div class="bento-grid">
+    
+    <!-- Resident Profile Card (6 cols) -->
+    <div class="bento-col-6 card card-spotlight">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-title">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Resident Identity & Profile</span>
+          </div>
+          <div class="card-description">Primary resident identity and household role.</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadStatus()">Reload</button>
+      </div>
+      <div class="card-content">
+        <div class="info-row">
+          <span class="info-label">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            User Name
+          </span>
+          <span class="info-value" id="prof-user-name">Timilehin</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Household Role
+          </span>
+          <span class="info-value" id="prof-user-role">Owner / Primary Resident</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            Location
+          </span>
+          <span class="info-value" id="prof-location">Nigeria</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Timezone
+          </span>
+          <span class="info-value" id="prof-timezone" style="font-family:var(--font-mono); font-size:0.8rem;">Africa/Lagos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Entertainment & Media Tastes (6 cols) -->
+    <div class="bento-col-6 card card-spotlight">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-title">
+            <svg class="icon-svg" viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="2.18" ry="2.18"/><line x1="7" x2="7" y1="2" y2="22"/><line x1="17" x2="17" y1="2" y2="22"/><line x1="2" x2="22" y1="12" y2="12"/></svg>
+            <span>Entertainment & Media Tastes</span>
+          </div>
+          <div class="card-description">Preferences used for tailored conversations and media control.</div>
+        </div>
+      </div>
+      <div class="card-content">
+        <div style="font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:hsl(var(--muted-foreground)); margin-bottom:0.4rem;">
+          Favorite Series & Universes
+        </div>
+        <div id="prof-series-chips" class="tag-chip-group" style="margin-bottom:1rem;"></div>
+
+        <div style="font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:hsl(var(--muted-foreground)); margin-bottom:0.4rem;">
+          Preferred Genres
+        </div>
+        <div id="prof-genre-chips" class="tag-chip-group"></div>
+      </div>
+    </div>
+
+    <!-- Power Management Rules (6 cols) -->
+    <div class="bento-col-6 card card-spotlight">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-title">
+            <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Power & Inverter Operating Rules</span>
+          </div>
+          <div class="card-description">Hardware guardrails and battery preservation limits.</div>
+        </div>
+      </div>
+      <div class="card-content">
+        <div class="rule-callout shield">
+          <svg class="icon-svg icon-svg-sm" style="color:hsl(var(--success));" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div>
+            <strong>Inverter Peak Load Protection:</strong>
+            Never power heavy inductive appliances (such as heavy air conditioning or heaters) during battery backup mode.
+          </div>
+        </div>
+        <div class="rule-callout info">
+          <svg class="icon-svg icon-svg-sm" style="color:hsl(var(--accent));" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <div>
+            <strong>Critical Circuits Priority:</strong>
+            Lighting, workstation routers, and cooling fans remain prioritized on 24/7 battery inverter supply.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Privacy & Voice Guarantees (6 cols) -->
+    <div class="bento-col-6 card card-spotlight">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-title">
+            <svg class="icon-svg" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Household Privacy Guarantees</span>
+          </div>
+          <div class="card-description">Security boundaries for voice processing and audio hardware.</div>
+        </div>
+      </div>
+      <div class="card-content">
+        <div class="rule-callout shield">
+          <svg class="icon-svg icon-svg-sm" style="color:hsl(var(--success));" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div>
+            <strong>RAM-Only Audio Processing:</strong>
+            Voice audio is transcribed in temporary memory buffers and purged immediately after recognition.
+          </div>
+        </div>
+        <div class="rule-callout shield">
+          <svg class="icon-svg icon-svg-sm" style="color:hsl(var(--success));" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" x2="19.07" y1="4.93" y2="19.07"/></svg>
+          <div>
+            <strong>No External Voice Telemetry:</strong>
+            Raw voice recordings are never transmitted to third-party servers, cloud buckets, or ad trackers.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Learned Long-Term Memory (12 cols) -->
+    <div class="bento-col-12 card card-spotlight">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-title">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg>
+            <span>Learned Long-Term Memory Facts</span>
+          </div>
+          <div class="card-description">Persistent facts remembered across conversation sessions. Add new facts or let the assistant learn naturally.</div>
+        </div>
+      </div>
+      <div class="card-content">
+        <div style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+          <input type="text" id="new-fact-input" class="btn btn-outline" style="flex:1; text-align:left;" placeholder="e.g. The solar inverter inverter switch is located in the utility room"/>
+          <button class="btn btn-primary" onclick="addFact()">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
+            <span>Memorize</span>
+          </button>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:60px;">#</th>
+              <th>Learned Context / Fact</th>
+              <th style="width:100px; text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="memory-table-body">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>

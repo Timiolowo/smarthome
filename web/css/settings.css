@@ -1,0 +1,375 @@
+/* ==========================================================================
+   SMARTHOME SETTINGS & CONFIGURATION PAGE — MODULAR STYLESHEET
+   100% Consistent with Setup Wizard Design System:
+   - Obsidian Zinc Card tokens (hsl(var(--card)) = #111115)
+   - Border: 1px solid hsl(var(--border))
+   - Radius: 12px (var(--radius))
+   - Tinted edge-to-edge header (hsl(var(--secondary) / 0.35))
+   - Pure black input fields (hsl(var(--background)) = #09090b)
+   - No orange accent color (clean cyan / electric blue focus)
+   ========================================================================== */
+
+#tab-config {
+  width: 100%;
+  min-height: 100%;
+  overflow-y: visible !important;
+}
+
+.settings-container {
+  max-width: 1280px;
+  margin: 1rem auto 5rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-bottom: 3rem;
+}
+
+/* Hero Header */
+.settings-hero-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.25rem 1.25rem 0.25rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.settings-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.settings-header-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: hsl(var(--foreground));
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.settings-header-title .icon-svg {
+  color: var(--cyan, #38e0ff);
+}
+
+.settings-header-desc {
+  font-size: 0.825rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Sub Navigation Bar (Component Bar on Top) */
+.settings-subnav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  overflow-x: auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.settings-subnav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: calc(var(--radius) - 2px);
+  background: transparent;
+  border: 1px solid transparent;
+  color: hsl(var(--muted-foreground));
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+  white-space: nowrap;
+}
+
+.settings-subnav-btn:hover {
+  color: hsl(var(--foreground));
+  background: hsl(var(--secondary) / 0.5);
+}
+
+.settings-subnav-btn.active {
+  color: hsl(var(--foreground));
+  background: hsl(var(--secondary));
+  border-color: hsl(var(--border));
+  box-shadow: var(--shadow-sm);
+}
+
+.settings-subnav-btn .icon-svg {
+  color: currentColor;
+}
+
+.settings-subnav-btn.active .icon-svg {
+  color: var(--cyan, #38e0ff);
+}
+
+/* Panel transitions */
+.settings-panel {
+  display: none;
+  animation: settings-fade 180ms ease;
+}
+
+.settings-panel.active {
+  display: block;
+}
+
+@keyframes settings-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 2-Column Grid Layout */
+.settings-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.settings-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .settings-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Setup-Matching Card Container */
+.settings-card {
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tinted Edge-to-Edge Card Header matching Setup Wizard */
+.settings-card-header {
+  padding: 0.85rem 1.25rem;
+  background: hsl(var(--secondary) / 0.35);
+  border-bottom: 1px solid hsl(var(--border));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings-card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  letter-spacing: -0.01em;
+}
+
+.settings-card-title .icon-svg {
+  width: 16px;
+  height: 16px;
+  color: var(--cyan, #38e0ff);
+}
+
+/* Padded Card Body */
+.settings-card-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+/* Form Fields */
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.settings-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.settings-hint {
+  font-size: 0.72rem;
+  color: hsl(var(--muted-foreground) / 0.8);
+  line-height: 1.4;
+  margin-top: 0.15rem;
+}
+
+/* Inputs & Selects - Matching Setup Page */
+.settings-input,
+.settings-select {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border-radius: calc(var(--radius) - 4px);
+  background-color: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  box-shadow: none !important;
+}
+
+.settings-input:focus,
+.settings-select:focus {
+  border-color: #38bdf8;
+  background-color: hsl(var(--background));
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
+}
+
+.settings-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  background-size: 14px;
+  padding-right: 2.2rem;
+  cursor: pointer;
+}
+
+.settings-select option {
+  background-color: #111115;
+  color: #fafafa;
+}
+
+.settings-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.settings-input-wrap .settings-input {
+  padding-right: 2.5rem;
+}
+
+.settings-input-eye-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color 150ms ease;
+  box-shadow: none !important;
+}
+
+.settings-input-eye-btn:hover {
+  color: #38bdf8;
+}
+
+/* Voice test row */
+.settings-voice-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.settings-test-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.65rem 1rem;
+  border-radius: calc(var(--radius) - 4px);
+  background: hsl(var(--secondary) / 0.6);
+  border: 1px solid hsl(var(--border));
+  color: #38bdf8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: none !important;
+  transition: all 150ms ease;
+}
+
+.settings-test-btn:hover {
+  background: hsl(var(--secondary));
+  color: #ffffff;
+  border-color: #38bdf8;
+}
+
+/* Bottom Action Bar */
+.settings-save-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.settings-save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.75rem 2rem;
+  border-radius: calc(var(--radius) - 2px);
+  background: #38bdf8;
+  border: none;
+  color: #09090b;
+  font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3) !important;
+}
+
+.settings-save-btn:hover {
+  transform: translateY(-1px);
+  background: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45) !important;
+}
+
+.settings-save-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.25) !important;
+}
+
+.settings-wizard-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--secondary) / 0.5);
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 150ms ease;
+  box-shadow: none !important;
+}
+
+.settings-wizard-link:hover {
+  background: hsl(var(--secondary));
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--foreground) / 0.2);
+}

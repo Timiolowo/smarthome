@@ -1,11 +1,70 @@
 import io
 import os
 import platform
+import re
 import shutil
 import subprocess
+import tempfile
 import time
 import wave
 from typing import Optional
+from src import audio_runtime
+
+
+def normalize_voice_name(voice: Optional[str]) -> Optional[str]:
+    """Normalizes voice name from browser descriptors like 'Samantha (Enhanced)' to 'Samantha' for macOS say."""
+    if not voice or voice.lower() in ('default', 'none', ''):
+        return None
+    clean = re.sub(r'\s*\(.*?\)', '', voice).strip()
+    return clean or None
+
+
+class NativePlayback:
+    def __init__(self, capture):
+        self.capture = capture
+        self.deadline = time.monotonic() + 120
+
+    def poll(self):
+        if self.capture.error or self.capture.playback_error:
+            raise RuntimeError(self.capture.error or self.capture.playback_error)
+        if time.monotonic() >= self.deadline:
+            raise RuntimeError('Playback timed out')
+        return 0 if self.capture.played.is_set() else None
+
+
+class SoundDevicePlayback:
+    """Polling adapter for interruptible Piper playback on Windows and Linux."""
+
+    def poll(self):
+        try:
+            return None if sd.get_stream().active else 0
+        except Exception:
+            return 0
+
+
+def play_ready_chime(capture=None):
+    """A quiet, short ready cue, completed before accepting microphone input."""
+    if sd is None or np is None:
+        return
+    samples = np.arange(1280) / 16000
+    tone = (.06 * np.sin(2 * np.pi * 660 * samples) * np.sin(np.linspace(0, np.pi, 1280)) ** 2)
+    try:
+        if capture and capture.echo_cancelled:
+            with tempfile.NamedTemporaryFile(suffix='.wav') as file:
+                with wave.open(file.name, 'wb') as wav:
+                    wav.setnchannels(1)
+                    wav.setsampwidth(2)
+                    wav.setframerate(16000)
+                    wav.writeframes((tone * 32767).astype('<i2').tobytes())
+                capture.play(file.name)
+                if not capture.played.wait(2):
+                    capture.stop_playback()
+        else:
+            sd.play(tone.astype(np.float32), samplerate=16000)
+            sd.wait()
+        time.sleep(.12)  # Let the short acoustic tail settle before listening.
+    except Exception as exc:
+        print(f'[Audio] Ready cue unavailable: {exc}')
 
 try:
     import numpy as np
@@ -34,6 +93,7 @@ class Speaker:
         self._engine = None
         self.piper_voice = None
         self.current_process: Optional[subprocess.Popen] = None
+        self.native_capture = None
 
         # 1. On non-macOS systems (Linux/PC), load Piper Neural TTS
         if self._system != "darwin" and os.path.exists(PIPER_MODEL_PATH) and os.path.exists(PIPER_CONFIG_PATH):
@@ -54,9 +114,20 @@ class Speaker:
 
     def stop(self) -> None:
         """Immediately silences any active speech process or audio playback."""
+        if self.native_capture:
+            try:
+                self.native_capture.stop_playback()
+            except (OSError, RuntimeError):
+                pass
+            self.native_capture = None
         if sd is not None:
             try:
                 sd.stop()
+            except Exception:
+                pass
+        if self._engine is not None:
+            try:
+                self._engine.stop()
             except Exception:
                 pass
 
@@ -80,11 +151,53 @@ class Speaker:
         self.stop()
         print(f"\n📢 [Assistant Speaking]: \"{text}\"")
 
+        norm_voice = normalize_voice_name(voice)
+
+        # Render speech once, then play through the same engine as microphone AEC.
+        if self._system == 'darwin' and listener and listener.capture and listener.capture.echo_cancelled:
+            try:
+                with tempfile.NamedTemporaryFile(suffix='.wav') as file:
+                    started = time.monotonic()
+                    listener._state('SYNTHESIZING', 'Preparing my reply')
+                    cmd = ['say', '-o', file.name, '--file-format=WAVE', '--data-format=LEI16@16000']
+                    if norm_voice:
+                        cmd += ['-v', norm_voice]
+                    subprocess.run(cmd + [text], check=True, capture_output=True, timeout=60)
+                    with wave.open(file.name, 'rb') as wav:
+                        if not wav.getnframes():
+                            raise RuntimeError('System voice produced no audio')
+                    audio_runtime.timing('speech_preparation', time.monotonic() - started)
+                    capture = listener.capture
+                    self.native_capture = capture
+                    capture.play(file.name)
+                    deadline = time.monotonic() + 5
+                    while not capture.playing.is_set() and not capture.played.is_set():
+                        if time.monotonic() >= deadline:
+                            raise RuntimeError('Audio playback did not start')
+                        time.sleep(.01)
+                    if capture.error or capture.playback_error:
+                        raise RuntimeError(capture.error or capture.playback_error)
+                    listener._state('SPEAKING', 'Speaking — you can interrupt')
+                    interrupted = listener.monitor_for_interruption(NativePlayback(capture)) if interruptible else False
+                    if not interruptible:
+                        if not capture.played.wait(120):
+                            raise RuntimeError('Audio playback timed out')
+                    if interrupted:
+                        capture.stop_playback()
+                    self.native_capture = None
+                    return interrupted
+            except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
+                self.stop()
+                print(f'[Speaker] Echo-cancelled playback failed ({exc}); using system voice and Enter to interrupt.')
+
+        if listener:
+            listener._state('SPEAKING', 'Speaking — press Enter to interrupt')
+
         # 1. macOS native 'say' (Clean, fast, built-in Mac voice)
         if self._system == "darwin" and shutil.which("say"):
             try:
-                if voice and voice.lower() not in ("default", "none"):
-                    cmd = ["say", "-v", voice, text]
+                if norm_voice:
+                    cmd = ["say", "-v", norm_voice, text]
                 else:
                     cmd = ["say", text]
                 self.current_process = subprocess.Popen(cmd)
@@ -92,7 +205,7 @@ class Speaker:
                     self.current_process.wait()
                     return False
 
-                interrupted = listener.monitor_for_interruption(self.current_process)
+                interrupted = listener.monitor_for_interruption(self.current_process, allow_voice=False)
                 if interrupted:
                     self.stop()
                     print("\n⚡ [INTERRUPTED]: Speech cut off by user.")
@@ -114,7 +227,17 @@ class Speaker:
                     audio_data = np.frombuffer(frames, dtype=np.int16)
 
                 sd.play(audio_data, samplerate=sample_rate)
-                sd.wait()
+                if interruptible and listener is not None:
+                    interrupted = listener.monitor_for_interruption(
+                        SoundDevicePlayback(),
+                        allow_voice=bool(listener.capture and listener.capture.echo_cancelled),
+                    )
+                    if interrupted:
+                        self.stop()
+                        print("\n⚡ [INTERRUPTED]: Speech cut off by user.")
+                        return True
+                else:
+                    sd.wait()
                 return False
             except Exception as e:
                 print(f"[Speaker] Piper speech error ({e}), trying fallback...")
@@ -126,7 +249,7 @@ class Speaker:
                 if not interruptible or listener is None:
                     self.current_process.wait()
                     return False
-                interrupted = listener.monitor_for_interruption(self.current_process)
+                interrupted = listener.monitor_for_interruption(self.current_process, allow_voice=False)
                 if interrupted:
                     self.stop()
                     print("\n⚡ [INTERRUPTED]: Speech cut off by user.")
@@ -151,7 +274,44 @@ speaker = Speaker()
 
 
 def speak(text: str, listener=None, interruptible: bool = False, voice: Optional[str] = None) -> bool:
-    return speaker.speak(text, listener=listener, interruptible=interruptible, voice=voice)
+    started = time.monotonic()
+    try:
+        return speaker.speak(text, listener=listener, interruptible=interruptible, voice=voice)
+    finally:
+        audio_runtime.timing('speech_playback_total', time.monotonic() - started)
+
+
+def speak_stream(sentence_generator, listener=None, interruptible: bool = True,
+                 voice: Optional[str] = None, cancel_event=None) -> tuple:
+    """
+    Speaks a stream of sentences sequentially.
+    Immediately stops playback and sets cancel_event upon user interruption.
+    Returns (interrupted: bool, spoken_text: str).
+    """
+    started = time.monotonic()
+    spoken_sentences = []
+    interrupted = False
+    try:
+        for sentence in sentence_generator:
+            if cancel_event and cancel_event.is_set():
+                interrupted = True
+                break
+            clean = sentence.strip()
+            if not clean:
+                continue
+            interrupted = speaker.speak(clean, listener=listener, interruptible=interruptible, voice=voice)
+            if interrupted:
+                if cancel_event:
+                    cancel_event.set()
+                break
+            spoken_sentences.append(clean)
+    finally:
+        if cancel_event and cancel_event.is_set():
+            interrupted = True
+        if interrupted and hasattr(sentence_generator, 'close'):
+            sentence_generator.close()
+        audio_runtime.timing('speech_playback_total', time.monotonic() - started)
+    return interrupted, " ".join(spoken_sentences).strip()
 
 
 def stop() -> None:

@@ -7,5 +7,14 @@
   "trigger_phrases": ["hello", "hey", "hi"],
   "voice_name": "Samantha",
   "listen_timeout_seconds": 7,
-  "phrase_time_limit_seconds": 5
+  "phrase_time_limit_seconds": 5,
+  "conversation_timeout_seconds": 30,
+  "conversation_phrase_limit_seconds": 25,
+  "microphone_device": null,
+  "echo_cancellation": true,
+  "ready_chime": false,
+  "llm_provider": "local",
+  "llm_model": null,
+  "llm_api_key": null,
+  "llm_base_url": null
 }

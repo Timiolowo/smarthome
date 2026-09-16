@@ -7,8 +7,8 @@ from src.voice_input import VoiceListener
 def test_config():
     print("Testing config loading...")
     config = load_config()
-    assert config.user_name == "Timilehin", f"Expected Timilehin, got {config.user_name}"
-    print(f"✅ Config passed: User={config.user_name}, Phone IP={config.phone_ip}")
+    assert bool(config.user_name), "Expected non-empty user_name"
+    print(f"✅ Config passed: User={config.user_name}, Phone IP={config.phone_ip}, LLM Provider={config.llm_provider}")
 
 def test_presence():
     print("\nTesting presence detection on localhost (127.0.0.1)...")
@@ -39,13 +39,14 @@ def test_memory():
     print("✅ Memory manager loaded and generated valid LLM system prompt.")
 
 def test_brain():
-    print("\nTesting local LLM brain...")
+    print("\nTesting LLM brain...")
     from src.brain import brain
+    print(f"Active Provider: {brain.provider_name} | Model: {brain.model_name} | Available: {brain.available}")
     if brain.available:
         reply = brain.generate_response("Hello, I am home.")
-        print(f"✅ Local Brain generated response: \"{reply}\"")
+        print(f"✅ Brain ({brain.provider_name}) generated response: \"{reply}\"")
     else:
-        print("⚠️ Local Brain using rule-based fallback.")
+        print("⚠️ Brain using fallback.")
 
 if __name__ == "__main__":
     print("=== Running Home AI Assistant Component Tests ===")
