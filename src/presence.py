@@ -44,7 +44,10 @@ class PresenceTracker:
     def _check_arp(self) -> bool:
         """Checks if the IP exists in the local ARP cache with a valid MAC."""
         try:
-            cmd = ["arp", "-n", self.target_ip]
+            if self._system == "windows":
+                cmd = ["arp", "-a", self.target_ip]
+            else:
+                cmd = ["arp", "-n", self.target_ip]
             res = subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,

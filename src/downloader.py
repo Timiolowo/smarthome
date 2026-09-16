@@ -17,6 +17,27 @@ def get_system_hardware_specs():
         if sys.platform == "darwin":
             out = subprocess.check_output(["sysctl", "-n", "hw.memsize"]).strip()
             ram_gb = round(int(out) / (1024 ** 3), 1)
+        elif sys.platform == "win32":
+            try:
+                import ctypes
+                class MEMORYSTATUSEX(ctypes.Structure):
+                    _fields_ = [
+                        ("dwLength", ctypes.c_ulong),
+                        ("dwMemoryLoad", ctypes.c_ulong),
+                        ("ullTotalPhys", ctypes.c_ulonglong),
+                        ("ullAvailPhys", ctypes.c_ulonglong),
+                        ("ullTotalPageFile", ctypes.c_ulonglong),
+                        ("ullAvailPageFile", ctypes.c_ulonglong),
+                        ("ullTotalVirtual", ctypes.c_ulonglong),
+                        ("ullAvailVirtual", ctypes.c_ulonglong),
+                        ("sullAvailExtendedVirtual", ctypes.c_ulonglong),
+                    ]
+                stat = MEMORYSTATUSEX()
+                stat.dwLength = ctypes.sizeof(MEMORYSTATUSEX)
+                ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(stat))
+                ram_gb = round(stat.ullTotalPhys / (1024 ** 3), 1)
+            except Exception:
+                pass
         elif hasattr(os, "sysconf") and "SC_PAGE_SIZE" in os.sysconf_names and "SC_PHYS_PAGES" in os.sysconf_names:
             ram_bytes = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")
             ram_gb = round(ram_bytes / (1024 ** 3), 1)
@@ -328,3 +349,67 @@ class ModelDownloader:
 
 
 downloader = ModelDownloader()
+
+
+def cli_download_models():
+    """CLI entrypoint for interactive model downloads across Windows, macOS, and Linux."""
+    specs = get_system_hardware_specs()
+    print("=" * 60)
+    print("      Local AI Models Downloader (Cross-Platform)")
+    print("=" * 60)
+    print(f"System: {specs['platform']} ({specs['chip']}) | RAM: {specs['ram_gb']} GB")
+    print(f"Recommendation: {specs['reason']}\n")
+
+    chosen_llm = specs["recommended_model"]
+    models_to_fetch = [chosen_llm, "stt", "tts"]
+
+    # Check if models already exist
+    missing = []
+    for mk in models_to_fetch:
+        spec = MODEL_SPECS.get(mk)
+        if not spec:
+            continue
+        all_ok = True
+        for f in spec["files"]:
+            dest = os.path.join(MODELS_DIR, f["rel_path"])
+            min_sz = f.get("min_size", 1000)
+            if not os.path.exists(dest) or os.path.getsize(dest) < min_sz:
+                all_ok = False
+                break
+        if not all_ok:
+            missing.append(mk)
+        else:
+            print(f"✓ {spec['name']} is already downloaded and verified.")
+
+    if not missing:
+        print("\nAll required offline AI models are ready!")
+        return
+
+    print(f"\nDownloading missing models: {', '.join(missing)}...")
+    downloader.start_download(missing)
+
+    last_pct = -1
+    while True:
+        status = downloader.get_status()
+        state = status.get("state")
+        pct = status.get("percent", 0.0)
+        curr_file = status.get("current_file", "")
+        speed = status.get("speed_mbps", 0.0)
+        eta = status.get("eta_seconds", 0)
+
+        if state == "downloading":
+            if int(pct) != last_pct:
+                sys.stdout.write(f"\r[{pct:5.1f}%] {curr_file[:35]:<35} | {speed:5.1f} Mbps | ETA: {eta:3d}s   ")
+                sys.stdout.flush()
+                last_pct = int(pct)
+        elif state == "completed":
+            print(f"\n\n✓ All downloads completed successfully!")
+            break
+        elif state == "error":
+            print(f"\n\nError: {status.get('error_message')}")
+            sys.exit(1)
+        time.sleep(0.2)
+
+
+if __name__ == "__main__":
+    cli_download_models()
