@@ -102,7 +102,10 @@ class HomeAgent:
             count = tools.cancel_all_reminders()
             return "I've canceled your upcoming reminders." if count > 0 else "You don't have any active reminders to cancel."
 
-        if cleaned.startswith("remind") or re.search(r"\bremind me\b", cleaned):
+        if (
+            cleaned.startswith("remind")
+            or re.search(r"\b(?:remind(?:\s+me)?|set\s+(?:a\s+)?reminder|schedule\s+(?:a\s+)?reminder|add\s+(?:a\s+)?reminder|create\s+(?:a\s+)?reminder|set\s+(?:your\s+)?mind\s+up)\b", cleaned)
+        ):
             rem_res = tools.parse_and_set_reminder(user_text)
             if rem_res:
                 return rem_res

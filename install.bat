@@ -1,13 +1,15 @@
 @echo off
 setlocal enabledelayedexpansion
 
+cd /d "%~dp0"
+
 echo ======================================================
 echo     Smart Home AI Assistant - Windows Setup
 echo ======================================================
 
 :: 1. Check Python installation
 echo.
-echo [Step 1/4] Checking Python Installation...
+echo [Step 1/5] Checking Python Installation...
 where python >nul 2>nul
 if %errorlevel% neq 0 (
     echo Error: Python was not found in your PATH.
@@ -27,7 +29,7 @@ for /f "tokens=*" %%i in ('python --version') do echo Found compatible Python: %
 
 :: 2. Create Virtual Environment
 echo.
-echo [Step 2/4] Setting up Virtual Environment (.venv)...
+echo [Step 2/5] Setting up Virtual Environment (.venv)...
 if not exist ".venv" (
     echo Creating .venv...
     python -m venv .venv
@@ -35,13 +37,19 @@ if not exist ".venv" (
     echo .venv already exists.
 )
 
+if not exist ".venv\Scripts\python.exe" (
+    echo Note: Incomplete .venv detected. Re-creating...
+    rmdir /s /q .venv 2>nul
+    python -m venv .venv
+)
+
 call .venv\Scripts\activate.bat
 
 :: 3. Install Requirements
 echo.
-echo [Step 3/4] Installing dependencies from requirements.txt...
+echo [Step 3/5] Installing dependencies from requirements.txt...
 python -m pip install --upgrade pip setuptools wheel
-pip install -r requirements.txt
+pip install --prefer-binary -r requirements.txt
 
 :: 4. Initialize Config and Directories
 echo.

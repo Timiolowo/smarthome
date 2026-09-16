@@ -556,7 +556,8 @@ class AgentTools:
         active = []
         for r in self.reminder_records:
             if not r.get("completed", False) and r.get("target_timestamp", 0) > now_ts:
-                active.append(r)
+                clean_r = {k: v for k, v in r.items() if k != "timer_obj"}
+                active.append(clean_r)
         return active
 
     def get_active_reminders_summary(self) -> str:

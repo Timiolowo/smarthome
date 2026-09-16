@@ -40,7 +40,7 @@ curl -fsSL https://github.com/Timiolowo/smarthome/archive/refs/heads/main.zip -o
 
 **On Windows (PowerShell):**
 ```powershell
-Invoke-WebRequest -Uri "https://github.com/Timiolowo/smarthome/archive/refs/heads/main.zip" -OutFile "smarthome.zip"; Expand-Archive -Path "smarthome.zip" -DestinationPath "."; cd smarthome-main; .\install.bat
+Invoke-WebRequest -Uri "https://github.com/Timiolowo/smarthome/archive/refs/heads/main.zip" -OutFile "smarthome.zip"; Expand-Archive -Path "smarthome.zip" -DestinationPath "." -Force; cd smarthome-main; cmd /c .\install.bat
 ```
 
 ---

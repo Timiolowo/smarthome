@@ -7,6 +7,7 @@ Supports:
 
 import json
 import os
+import re
 import threading
 import urllib.error
 import urllib.request
@@ -341,7 +342,7 @@ class GeminiProvider(BaseLLMProvider):
 
     def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None, timeout: int = 15):
         key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY", "")
-        model_name = model or "gemini-2.5-flash"
+        model_name = model or "gemini-3.5-flash-lite"
         super().__init__(name="Google Gemini", model=model_name, api_key=key)
         self.timeout = timeout
         self.available = bool(self.api_key)
@@ -404,9 +405,9 @@ class GeminiProvider(BaseLLMProvider):
             error_body = e.read().decode("utf-8", errors="replace")
             print(f"[Gemini] Model {self.model} returned HTTP {e.code}: {error_body}")
             if e.code == 429:
-                retry_match = re.search(r'retry in ([0-9.]+\s*s?)', error_body, re.I)
-                delay_str = f" in {retry_match.group(1)}" if retry_match else " in a few seconds"
-                raise RuntimeError(f"Rate limit exceeded for Gemini ({self.model}). Please retry{delay_str}.") from e
+                retry_match = re.search(r'retry in ([0-9.]+\s*s?)', error_body, re.I) or re.search(r'"retryDelay":\s*"([^"]+)"', error_body, re.I)
+                delay_str = f" in {retry_match.group(1)}" if retry_match else " in a moment"
+                raise RuntimeError(f"We have hit the rate limit for {self.name} {self.model}. Please try asking again{delay_str}.") from e
             raise RuntimeError(f"Gemini API error (HTTP {e.code})") from e
         except Exception as e:
             print(f"[Gemini] Request with {self.model} failed: {e}")
@@ -479,9 +480,9 @@ class GeminiProvider(BaseLLMProvider):
             error_body = e.read().decode("utf-8", errors="replace")
             print(f"[Gemini] Stream HTTP {e.code}: {error_body}")
             if e.code == 429:
-                retry_match = re.search(r'retry in ([0-9.]+\s*s?)', error_body, re.I)
-                delay_str = f" in {retry_match.group(1)}" if retry_match else " in a few seconds"
-                raise RuntimeError(f"Rate limit exceeded for Gemini ({self.model}). Please retry{delay_str}.") from e
+                retry_match = re.search(r'retry in ([0-9.]+\s*s?)', error_body, re.I) or re.search(r'"retryDelay":\s*"([^"]+)"', error_body, re.I)
+                delay_str = f" in {retry_match.group(1)}" if retry_match else " in a moment"
+                raise RuntimeError(f"We have hit the rate limit for {self.name} {self.model}. Please try asking again{delay_str}.") from e
             raise RuntimeError(f"Gemini API error (HTTP {e.code})") from e
         except Exception:
             # Fallback to single-turn chat if streaming endpoint encounters any issues

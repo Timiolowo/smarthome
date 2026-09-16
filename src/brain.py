@@ -182,7 +182,7 @@ class Brain:
             err_msg = str(e)
             print(f"[Brain] Stream inference error ({err_msg}), falling back...")
             if not accumulated:
-                fallback = err_msg if ("rate limit" in err_msg.lower() or "quota" in err_msg.lower() or "429" in err_msg) else f"Model error: {err_msg}"
+                fallback = err_msg if ("rate limit" in err_msg.lower() or "quota" in err_msg.lower() or "429" in err_msg or "hit the rate limit" in err_msg.lower()) else f"Sorry, I had trouble connecting to the language model: {err_msg}"
                 assistant_turn["content"] = fallback
                 yield fallback
         finally:
