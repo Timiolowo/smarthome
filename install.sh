@@ -92,6 +92,15 @@ else
     echo -e "${GREEN}config.json found.${NC}"
 fi
 
+if [ ! -f ".env" ]; then
+    if [ -f ".env.example" ]; then
+        cp .env.example .env
+        echo -e "${GREEN}Created local .env from .env.example template.${NC}"
+    fi
+else
+    echo -e "${GREEN}.env found (kept local and private).${NC}"
+fi
+
 # 5. Check & Download Local AI Models (if missing)
 echo -e "\n${YELLOW}[Step 5/5] Checking Local Offline AI Models...${NC}"
 LLM_3B="models/llm/Llama-3.2-3B-Instruct-Q4_K_M.gguf"

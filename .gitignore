@@ -28,3 +28,6 @@ Thumbs.db
 *.swp
 *.swo
 data/memory_log.jsonl
+*.ses
+.freebuff/
+.pytest_cache/

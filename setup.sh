@@ -103,6 +103,17 @@ else
     echo -e "${GREEN}config.json exists.${NC}"
 fi
 
+if [ ! -f ".env" ]; then
+    if [ -f ".env.example" ]; then
+        cp .env.example .env
+        echo -e "${GREEN}Created .env from .env.example template.${NC}"
+    else
+        echo -e "${YELLOW}Warning: .env.example not found.${NC}"
+    fi
+else
+    echo -e "${GREEN}.env exists (kept local and private).${NC}"
+fi
+
 echo -e "\n${GREEN}==============================================${NC}"
 echo -e "${GREEN}             Setup Complete!                  ${NC}"
 echo -e "${GREEN}==============================================${NC}"
